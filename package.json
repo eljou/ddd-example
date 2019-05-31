@@ -1,0 +1,43 @@
+{
+  "name": "typescript-node-starter",
+  "version": "1.0.0",
+  "description": "Simple starter for typescript projects",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "node -r dotenv/config build/index.js",
+    "prestart": "npm run build",
+    "start:dev": "nodemon -r dotenv/config --exec ts-node src/index.ts",
+    "start:build": "node -r dotenv/config build/index.js",
+    "build": "npx tsc -p .",
+    "lint": "eslint . --ext .ts",
+    "test": "jest --detectOpenHandles --runInBand --forceExit",
+    "test:watch": "npm test -- --watchAll --runInBand",
+    "coverage": "npm test -- --coverage --no-cache --detectOpenHandles",
+    "coverage:watch": "npm run coverage -- --forceExit --watch"
+  },
+  "keywords": [],
+  "author": "Ernesto Fuentes Gómez",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^6.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@types/node": "^11.13.1",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "jest": "^24.5.0",
+    "module-alias": "^2.2.0",
+    "nodemon": "^1.18.10",
+    "prettier": "^1.16.4",
+    "ts-jest": "^24.0.0",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
+  },
+  "_moduleAliases": {
+    "@src": "build"
+  }
+}
