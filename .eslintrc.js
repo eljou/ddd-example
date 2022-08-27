@@ -1,16 +1,13 @@
 module.exports = {
-	parser: '@typescript-eslint/parser',
-	extends: [
-		'plugin:@typescript-eslint/recommended',
-		'prettier/@typescript-eslint',
-		'plugin:prettier/recommended'
-	],
-	parserOptions:  {
-    ecmaVersion:  2018,
-    sourceType:  'module',
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
   },
-  rules:  {
-    // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
-    // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+  ignorePatterns: ['*rc.js', 'jest.config.js', 'node_modules/*'],
+  rules: {
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
   },
 }
