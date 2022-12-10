@@ -1,6 +1,8 @@
+import { Entity } from '@src/bounded-contexts/shared/domain/entity'
 import { NonEmptyString } from '@src/bounded-contexts/shared/domain/value-objects/non-empty-string'
 import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
-import { ReservationId } from './reservation-id'
+import { ClientName } from './value-objects/client-name'
+import { ReservationId } from './value-objects/reservation-id'
 
 type ReservationPrimitives = {
   id: string
@@ -10,23 +12,19 @@ type ReservationPrimitives = {
   accepted: boolean
 }
 
-export class Reservation {
-  private constructor(
-    private readonly id: ReservationId,
-    private readonly clientName: NonEmptyString,
-    private readonly seats: PositiveNumber,
-    private readonly date: Date,
-    private readonly accepted: boolean,
-  ) {}
+type ReservationProps = {
+  clientName: ClientName
+  seats: PositiveNumber
+  date: Date
+  accepted: boolean
+}
+export class Reservation extends Entity<ReservationProps> {
+  private constructor(props: ReservationProps, id?: ReservationId) {
+    super(props, id)
+  }
 
-  static create(props: {
-    id: ReservationId
-    clientName: NonEmptyString
-    seats: PositiveNumber
-    date: Date
-    accepted: boolean
-  }): Reservation {
-    return new Reservation(props.id, props.clientName, props.seats, props.date, props.accepted)
+  static create(props: ReservationProps & { id?: ReservationId }): Reservation {
+    return new Reservation(props, props.id)
   }
 
   static fromPrimitives(plainData: {
@@ -37,21 +35,23 @@ export class Reservation {
     accepted: boolean
   }): Reservation {
     return new Reservation(
+      {
+        clientName: new NonEmptyString(plainData.clientName),
+        seats: new PositiveNumber(plainData.seats),
+        date: plainData.date,
+        accepted: plainData.accepted,
+      },
       new ReservationId(plainData.id),
-      new NonEmptyString(plainData.clientName),
-      new PositiveNumber(plainData.seats),
-      plainData.date,
-      plainData.accepted,
     )
   }
 
   toPrimitives(): ReservationPrimitives {
     return {
-      id: this.id.value,
-      clientName: this.clientName.value,
-      seats: this.seats.value,
-      date: this.date,
-      accepted: this.accepted,
+      id: this._id.value,
+      clientName: this.props.clientName.value,
+      seats: this.props.seats.value,
+      date: this.props.date,
+      accepted: this.props.accepted,
     }
   }
 }
