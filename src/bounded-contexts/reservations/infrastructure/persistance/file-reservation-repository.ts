@@ -1,4 +1,4 @@
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/criteria'
+import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
 import { ValueObject } from '@src/bounded-contexts/shared/domain/value-objects/value-object'
 import { assertNever, comparePrimitives } from '@src/bounded-contexts/shared/utility-functions'
 import { serialize, deserialize } from 'bson'
@@ -21,7 +21,7 @@ export class FileReservationRepository implements ReservationRepository {
     return Reservation.fromPrimitives(deserialize(Buffer.from(line, 'hex')) as any)
   }
 
-  private evaluateFilter(r: Reservation, filter: Filter<Reservation, keyof Reservation['props']>): boolean {
+  private evaluateFilter(r: Reservation, filter: Filter<Reservation>): boolean {
     const { operator, field, value: filterValue } = filter
     const resFieldValue = r.props[field]
     const a = resFieldValue instanceof ValueObject ? resFieldValue.value : resFieldValue

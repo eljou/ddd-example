@@ -4,8 +4,7 @@ import { faker } from '@faker-js/faker'
 import { FileReservationRepository } from '../file-reservation-repository'
 import { ReservationMother } from '@src/bounded-contexts/reservations/domain/__test__/reservation-mother'
 import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/criteria'
-import { Reservation } from '@src/bounded-contexts/reservations/domain/reservation'
+import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
 
 describe('FileReservationRepository', () => {
   let fileReservationRepository: FileReservationRepository
@@ -55,7 +54,7 @@ describe('FileReservationRepository', () => {
 
     const founds = await fileReservationRepository.search(
       new Criteria({
-        filters: [{ field: 'clientName', operator: '=', value: clientName } as Filter<Reservation, 'clientName'>],
+        filters: [Filter.create({ field: 'clientName', operator: '=', value: clientName })],
       }),
     )
 
