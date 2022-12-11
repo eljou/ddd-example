@@ -11,6 +11,7 @@
     "build": "npx tsc -p .",
     "lint": "eslint . --ext .ts",
     "test": "jest --detectOpenHandles --runInBand --forceExit",
+    "test:integration": "jest --detectOpenHandles --runInBand --forceExit --config ./integration.jest.config.js",
     "test:watch": "npm test -- --watchAll --runInBand",
     "coverage": "npm test -- --coverage --no-cache --detectOpenHandles",
     "coverage:watch": "npm run coverage -- --forceExit --watch"
