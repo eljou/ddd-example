@@ -1,4 +1,6 @@
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
   testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
@@ -10,12 +12,4 @@ module.exports = {
   verbose: true,
   collectCoverageFrom: ['**/*.{ts,tsx}', '!**/node_modules/**'],
   coverageDirectory: '../coverage',
-  coverageThreshold: {
-    global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: -10,
-    },
-  },
 }

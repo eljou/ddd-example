@@ -1,5 +1,4 @@
 import { Entity } from '@src/bounded-contexts/shared/domain/entity'
-import { NonEmptyString } from '@src/bounded-contexts/shared/domain/value-objects/non-empty-string'
 import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
 import { ClientName } from './value-objects/client-name'
 import { ReservationId } from './value-objects/reservation-id'
@@ -12,7 +11,7 @@ type ReservationPrimitives = {
   accepted: boolean
 }
 
-type ReservationProps = {
+export type ReservationProps = {
   clientName: ClientName
   seats: PositiveNumber
   date: Date
@@ -36,7 +35,7 @@ export class Reservation extends Entity<ReservationProps> {
   }): Reservation {
     return new Reservation(
       {
-        clientName: new NonEmptyString(plainData.clientName),
+        clientName: new ClientName(plainData.clientName),
         seats: new PositiveNumber(plainData.seats),
         date: plainData.date,
         accepted: plainData.accepted,
