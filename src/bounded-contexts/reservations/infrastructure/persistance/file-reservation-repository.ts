@@ -27,13 +27,13 @@ export class FileReservationRepository implements ReservationRepository {
     const b = filterValue instanceof ValueObject ? filterValue.value : filterValue
     switch (operator) {
       case '!=':
-        return a instanceof Date && b instanceof Date ? a.toString() != b.toString() : a != b
+        return comparePrimitives(a, b) != 0
       case '=':
-        return a instanceof Date && b instanceof Date ? a.toString() == b.toString() : a === b
+        return comparePrimitives(a, b) == 0
       case '<':
-        return a < b
+        return comparePrimitives(a, b) == -1
       case '>':
-        return a > b
+        return comparePrimitives(a, b) == 1
       case 'CONTAINS':
         return typeof a == 'string' && typeof b == 'string' && a.includes(b)
       case 'NOT_CONTAINS':

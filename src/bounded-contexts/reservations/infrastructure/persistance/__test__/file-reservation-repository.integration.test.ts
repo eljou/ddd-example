@@ -81,4 +81,22 @@ describe('FileReservationRepository', () => {
     expect(founds).toHaveLength(3)
     expect(founds[0].props.seats.value).toBeLessThanOrEqual(founds[2].props.seats.value)
   })
+
+  it('should search by date', async () => {
+    const lastYear = new ReservationDate(faker.date.past(5))
+
+    await Promise.all([
+      [...new Array(3)].map(() => fileReservationRepository.add(ReservationMother.randomWithProps({ date: lastYear }))),
+      [...new Array(2)].map(() => fileReservationRepository.add(ReservationMother.random())),
+    ])
+
+    const founds = await fileReservationRepository.search(
+      new Criteria({
+        filters: [Filter.create({ field: 'date', operator: '=', value: lastYear })],
+      }),
+    )
+
+    expect(founds).toHaveLength(3)
+    expect(founds[0].props.date.value.getTime()).toEqual(lastYear.value.getTime())
+  })
 })

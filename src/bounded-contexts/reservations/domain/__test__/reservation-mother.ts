@@ -4,12 +4,13 @@ import { Reservation, ReservationProps } from '../reservation'
 import { ClientNameMother } from './client-name-mother'
 import { ReservationDateMother } from './reservation-date-mother'
 
-function createReservationProps(props: Partial<ReservationProps> = {}): ReservationProps {
+type CreationProps = Parameters<typeof Reservation.create>[0]
+
+function createReservationProps(props: Partial<ReservationProps> = {}): CreationProps {
   return {
     clientName: props.clientName ?? ClientNameMother.random(),
     seats: props.seats ?? PositiveNumberMother.random(),
     date: props.date ?? ReservationDateMother.random(),
-    accepted: props.accepted ?? faker.datatype.boolean(),
   }
 }
 
@@ -19,6 +20,8 @@ export class ReservationMother {
   }
 
   static randomWithProps(props: Partial<ReservationProps>): Reservation {
-    return Reservation.create(createReservationProps(props))
+    const res = Reservation.create(createReservationProps(props))
+    if (!props.accepted) res.rejectReservation()
+    return res
   }
 }
