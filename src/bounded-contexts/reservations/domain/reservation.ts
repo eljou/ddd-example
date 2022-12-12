@@ -1,5 +1,6 @@
 import { Entity } from '@src/bounded-contexts/shared/domain/entity'
 import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
+
 import { NoCapacity } from './errors/no-capacity'
 import { ClientName } from './value-objects/client-name'
 import { ReservationDate } from './value-objects/reservation-date'

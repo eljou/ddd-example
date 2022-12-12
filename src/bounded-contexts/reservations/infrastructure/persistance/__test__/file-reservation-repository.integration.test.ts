@@ -1,11 +1,14 @@
-import { deserialize } from 'bson'
 import { existsSync, promises } from 'fs'
+
 import { faker } from '@faker-js/faker'
-import { FileReservationRepository } from '../file-reservation-repository'
+import { deserialize } from 'bson'
+
 import { ReservationMother } from '@src/bounded-contexts/reservations/domain/__test__/reservation-mother'
 import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
 import { ReservationDate } from '@src/bounded-contexts/reservations/domain/value-objects/reservation-date'
+import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
+
+import { FileReservationRepository } from '../file-reservation-repository'
 
 describe('FileReservationRepository', () => {
   let fileReservationRepository: FileReservationRepository

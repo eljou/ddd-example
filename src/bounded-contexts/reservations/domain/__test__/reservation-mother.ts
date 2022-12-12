@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import { PositiveNumberMother } from '@src/bounded-contexts/shared/domain/value-objects/__test__/positive-number-mother'
+
 import { Reservation, ReservationProps } from '../reservation'
 import { ClientNameMother } from './client-name-mother'
 import { ReservationDateMother } from './reservation-date-mother'

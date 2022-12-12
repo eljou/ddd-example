@@ -1,9 +1,10 @@
-import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
 import { PositiveNumberMother } from '@src/bounded-contexts/shared/domain/value-objects/__test__/positive-number-mother'
-import { NoCapacity } from '../../domain/errors/no-capacity'
-import { Reservation } from '../../domain/reservation'
+import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
+
 import { ClientNameMother } from '../../domain/__test__/client-name-mother'
 import { ReservationDateMother } from '../../domain/__test__/reservation-date-mother'
+import { NoCapacity } from '../../domain/errors/no-capacity'
+import { Reservation } from '../../domain/reservation'
 import { InMemoryReservationRepository } from '../../infrastructure/persistance/in-memory-reservation-repository'
 import { ReservationCreator } from '../reservation-creator'
 
