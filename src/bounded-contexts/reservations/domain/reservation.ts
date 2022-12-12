@@ -1,6 +1,8 @@
 import { Entity } from '@src/bounded-contexts/shared/domain/entity'
 import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
+import { NoCapacity } from './errors/no-capacity'
 import { ClientName } from './value-objects/client-name'
+import { ReservationDate } from './value-objects/reservation-date'
 import { ReservationId } from './value-objects/reservation-id'
 
 type ReservationPrimitives = {
@@ -14,7 +16,7 @@ type ReservationPrimitives = {
 export type ReservationProps = {
   clientName: ClientName
   seats: PositiveNumber
-  date: Date
+  date: ReservationDate
   accepted: boolean
 }
 export class Reservation extends Entity<ReservationProps> {
@@ -22,8 +24,8 @@ export class Reservation extends Entity<ReservationProps> {
     super(props, id)
   }
 
-  static create(props: ReservationProps & { id?: ReservationId }): Reservation {
-    return new Reservation(props, props.id)
+  static create(props: Omit<ReservationProps, 'accepted'> & { id?: ReservationId }): Reservation {
+    return new Reservation({ ...props, accepted: true }, props.id)
   }
 
   static fromPrimitives(plainData: {
@@ -37,7 +39,7 @@ export class Reservation extends Entity<ReservationProps> {
       {
         clientName: new ClientName(plainData.clientName),
         seats: new PositiveNumber(plainData.seats),
-        date: plainData.date,
+        date: new ReservationDate(plainData.date),
         accepted: plainData.accepted,
       },
       new ReservationId(plainData.id),
@@ -49,8 +51,21 @@ export class Reservation extends Entity<ReservationProps> {
       id: this._id.value,
       clientName: this.props.clientName.value,
       seats: this.props.seats.value,
-      date: this.props.date,
+      date: this.props.date.value,
       accepted: this.props.accepted,
     }
+  }
+
+  rejectReservation(): void {
+    this.props.accepted = false
+  }
+
+  acceptReservation(): void {
+    this.props.accepted = true
+  }
+
+  tryAcceptReservation(others: Reservation[], capacity: PositiveNumber): void {
+    if (others.reduce((acc, r) => acc + r.props.seats.value, 0) + this.props.seats.value > capacity.value)
+      throw NoCapacity.create(capacity.value, this.props.seats.value)
   }
 }

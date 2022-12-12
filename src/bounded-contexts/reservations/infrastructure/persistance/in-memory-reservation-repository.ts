@@ -1,24 +1,37 @@
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
+import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria'
 import { ValueObject } from '@src/bounded-contexts/shared/domain/value-objects/value-object'
 import { assertNever, comparePrimitives } from '@src/bounded-contexts/shared/utility-functions'
-import { serialize, deserialize } from 'bson'
-import { promises } from 'fs'
 import { Reservation } from '../../domain/reservation'
 import { ReservationRepository } from '../../domain/reservation-repository'
 import { ReservationId } from '../../domain/value-objects/reservation-id'
 
-export class FileReservationRepository implements ReservationRepository {
-  static ENCODING = 'utf-8' as const
-  public dbFile = './db.txt'
+type ReservationDB = {
+  id: string
+  clientName: string
+  seats: number
+  date: Date
+  accepted: boolean
+}
 
-  private async dbLines(): Promise<string[]> {
-    return (await promises.readFile(this.dbFile, { encoding: FileReservationRepository.ENCODING }))
-      .split('\n')
-      .filter(l => l.trim() !== '')
+export class InMemoryReservationRepository implements ReservationRepository {
+  readonly db: Map<string, ReservationDB>
+
+  constructor() {
+    this.db = new Map()
   }
 
-  private strToReservation(line: string): Reservation {
-    return Reservation.fromPrimitives(deserialize(Buffer.from(line, 'hex')) as any)
+  clean(): void {
+    this.db.clear()
+  }
+
+  async add(r: Reservation): Promise<void> {
+    this.db.set(r._id.value, r.toPrimitives())
+  }
+
+  async getById(id: ReservationId): Promise<Reservation | null> {
+    const res = this.db.get(id.value)
+    if (!res) return null
+    return Reservation.fromPrimitives(res)
   }
 
   private evaluateFilter(r: Reservation, { operator, field, value: filterValue }: Filter<Reservation>): boolean {
@@ -43,23 +56,10 @@ export class FileReservationRepository implements ReservationRepository {
     }
   }
 
-  async add(r: Reservation): Promise<void> {
-    await promises.appendFile(this.dbFile, serialize(r.toPrimitives()).toString('hex') + '\n')
-  }
-
-  async getById(id: ReservationId): Promise<Reservation | null> {
-    return (
-      (await this.dbLines())
-        .filter(line => line.length != 0)
-        .map(this.strToReservation)
-        .find(res => res._id.value == id.value) ?? null
-    )
-  }
-
   async search({ filters, limit, offset = 0, order }: Criteria<Reservation>): Promise<Reservation[]> {
-    const reservations = (await this.dbLines())
-      .map(this.strToReservation)
-      .filter(r => filters.reduce((prev, filter) => prev && this.evaluateFilter(r, filter), true))
+    const reservations = [...this.db.values()]
+      .map(Reservation.fromPrimitives)
+      .filter(reservation => filters.reduce((prev, f) => prev && this.evaluateFilter(reservation, f), true))
       .slice(offset, limit ? offset + limit : undefined)
 
     if (order)

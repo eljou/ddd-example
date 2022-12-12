@@ -5,6 +5,7 @@ import { FileReservationRepository } from '../file-reservation-repository'
 import { ReservationMother } from '@src/bounded-contexts/reservations/domain/__test__/reservation-mother'
 import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
 import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
+import { ReservationDate } from '@src/bounded-contexts/reservations/domain/value-objects/reservation-date'
 
 describe('FileReservationRepository', () => {
   let fileReservationRepository: FileReservationRepository
@@ -37,7 +38,10 @@ describe('FileReservationRepository', () => {
   })
 
   it('should get by id', async () => {
-    const reservation = ReservationMother.randomWithProps({ date: faker.date.soon(), accepted: true })
+    const reservation = ReservationMother.randomWithProps({
+      date: new ReservationDate(faker.date.soon()),
+      accepted: true,
+    })
     await fileReservationRepository.add(reservation)
 
     const found = await fileReservationRepository.getById(reservation._id)
