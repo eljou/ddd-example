@@ -1,4 +1,4 @@
-import { Criteria } from '@src/bounded-contexts/shared/domain/criteria/criteria'
+import { Criteria } from '@shared/domain/criteria/criteria'
 
 import { Reservation } from './reservation'
 import { ReservationId } from './value-objects/reservation-id'

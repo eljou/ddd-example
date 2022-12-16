@@ -1,6 +1,6 @@
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria'
-import { UseCase } from '@src/bounded-contexts/shared/domain/use-case'
-import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
+import { Criteria, Filter } from '@shared/domain/criteria'
+import { UseCase } from '@shared/domain/use-case'
+import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
 import { Reservation } from '../domain/reservation'
 import { ReservationRepository } from '../domain/reservation-repository'

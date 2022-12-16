@@ -1,3 +1,3 @@
-import { GenericId } from '@src/bounded-contexts/shared/domain/value-objects/id'
+import { GenericId } from '@shared/domain/value-objects/id'
 
 export class ReservationId extends GenericId {}

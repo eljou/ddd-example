@@ -1,4 +1,4 @@
-import { CustomError } from '@src/bounded-contexts/shared/domain/errors/custom-error'
+import { CustomError } from '@shared/domain/errors/custom-error'
 
 export class NoCapacity extends CustomError<typeof NoCapacity.CODE> {
   static CODE = 'NO_CAPACITY' as const

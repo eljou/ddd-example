@@ -1,10 +1,10 @@
-import { promises } from 'fs'
+import { existsSync, promises, writeFileSync } from 'fs'
 
 import { deserialize, serialize } from 'bson'
 
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria/'
-import { ValueObject } from '@src/bounded-contexts/shared/domain/value-objects/value-object'
-import { assertNever, comparePrimitives } from '@src/bounded-contexts/shared/utility-functions'
+import { Criteria, Filter } from '@shared/domain/criteria/'
+import { ValueObject } from '@shared/domain/value-objects/value-object'
+import { assertNever, comparePrimitives } from '@shared/utility-functions'
 
 import { Reservation } from '../../domain/reservation'
 import { ReservationRepository } from '../../domain/reservation-repository'
@@ -13,6 +13,9 @@ import { ReservationId } from '../../domain/value-objects/reservation-id'
 export class FileReservationRepository implements ReservationRepository {
   static ENCODING = 'utf-8' as const
   public dbFile = './db.txt'
+  constructor() {
+    if (!existsSync(this.dbFile)) writeFileSync(this.dbFile, '')
+  }
 
   private async dbLines(): Promise<string[]> {
     return (await promises.readFile(this.dbFile, { encoding: FileReservationRepository.ENCODING }))
@@ -21,7 +24,7 @@ export class FileReservationRepository implements ReservationRepository {
   }
 
   private strToReservation(line: string): Reservation {
-    return Reservation.fromPrimitives(deserialize(Buffer.from(line, 'hex')) as any)
+    return Reservation.fromPrimitives(deserialize(Buffer.from(line, 'base64')) as any)
   }
 
   private evaluateFilter(r: Reservation, { operator, field, value: filterValue }: Filter<Reservation>): boolean {
@@ -47,7 +50,7 @@ export class FileReservationRepository implements ReservationRepository {
   }
 
   async add(r: Reservation): Promise<void> {
-    await promises.appendFile(this.dbFile, serialize(r.toPrimitives()).toString('hex') + '\n')
+    await promises.appendFile(this.dbFile, serialize(r.toPrimitives()).toString('base64') + '\n')
   }
 
   async getById(id: ReservationId): Promise<Reservation | null> {

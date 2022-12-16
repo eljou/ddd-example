@@ -1,5 +1,5 @@
-import { PositiveNumberMother } from '@src/bounded-contexts/shared/domain/value-objects/__test__/positive-number-mother'
-import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
+import { PositiveNumberMother } from '@shared/domain/value-objects/__test__/positive-number-mother'
+import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
 import { ClientNameMother } from '../../domain/__test__/client-name-mother'
 import { ReservationDateMother } from '../../domain/__test__/reservation-date-mother'

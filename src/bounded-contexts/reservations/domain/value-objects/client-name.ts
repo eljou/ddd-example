@@ -1,5 +1,5 @@
-import { InvalidArgument } from '@src/bounded-contexts/shared/domain/errors'
-import { NonEmptyString } from '@src/bounded-contexts/shared/domain/value-objects/non-empty-string'
+import { InvalidArgument } from '@shared/domain/errors'
+import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
 
 export class ClientName extends NonEmptyString {
   constructor(value: string) {

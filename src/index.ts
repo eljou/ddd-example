@@ -1,11 +1,4 @@
-interface Message {
-  type: 'HELLO' | 'BYE'
-  str: string
-}
+import { comparePrimitives } from '@shared/utility-functions'
 
-const simpleMessage: Message = {
-  type: 'HELLO',
-  str: 'WORLD',
-}
-
-console.log(simpleMessage)
+console.log('hola', comparePrimitives(1, 1))
+console.log(process.env['NODE_ENV'])

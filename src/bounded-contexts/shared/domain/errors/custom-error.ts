@@ -10,7 +10,7 @@ export abstract class CustomError<C extends string> extends Error {
     this.issuedAt = new Date()
   }
 
-  protected toJSON(): JSONType {
+  toJSON(): JSONType {
     return {
       code: this.code,
       message: this.message,
@@ -19,7 +19,7 @@ export abstract class CustomError<C extends string> extends Error {
     }
   }
 
-  protected logWith(logger: Logger): void {
+  logWith(logger: Logger): void {
     logger.error(`${this.name}: [${this.issuedAt.toISOString()}] ${this.code} - ${this.message}`)
     logger.debug(`${this.name}: ${this.stack}`)
   }

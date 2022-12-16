@@ -1,4 +1,4 @@
-import { ValueObject } from '@src/bounded-contexts/shared/domain/value-objects/value-object'
+import { ValueObject } from '@shared/domain/value-objects/value-object'
 
 export class ReservationDate extends ValueObject<Date> {
   constructor(date: Date) {
