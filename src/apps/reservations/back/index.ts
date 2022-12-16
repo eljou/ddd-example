@@ -1,8 +1,11 @@
+import { WinstonLogger } from '@shared/infrastructure/winston-logger'
+
 import { KoaServer } from './server'
 
 const closeSignals = ['SIGTERM', 'SIGINT', 'SIGUSR2', 'SIGQUIT']
 
-KoaServer.create('reservations-backend', 8080)
+const logger = new WinstonLogger('debug')
+KoaServer.create({ productName: 'reservations-backend', port: 8080, logger })
   .setGlobalMiddlewares([
     async (ctx, next) => {
       const start = Date.now()
@@ -17,9 +20,9 @@ KoaServer.create('reservations-backend', 8080)
     closeSignals.forEach(s =>
       process.on(s, async () => {
         await server.stop()
-        console.log('App closed')
+        logger.info('App closed')
         process.exit(0)
       }),
     )
   })
-  .catch(console.error)
+  .catch(logger.error)

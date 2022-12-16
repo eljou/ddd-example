@@ -7,6 +7,8 @@ import Koa, { Middleware } from 'koa'
 import bodyParser from 'koa-bodyparser'
 import Router from 'koa-router'
 
+import { Logger } from '@shared/domain/logger'
+
 import healthRouter from './routes/health'
 import reservationsRouter from './routes/reservations'
 
@@ -16,14 +18,7 @@ export class KoaServer {
   private runningServer: Server | null = null
   private globalMiddlewares: Middleware[] = []
 
-  private log(level: 'info' | 'error' | 'debug' | 'warn', msg: string) {
-    if (level == 'info') console.log(c.green(` http-server: (${c.bold(c.greenBright(level))}) ${msg}`))
-    if (level == 'error') console.error(c.red(` http-server: (${c.bold(c.redBright(level))}) ${msg}`))
-    if (level == 'debug') console.debug(c.blue(` http-server: (${c.bold(c.blueBright(level))}) ${msg}`))
-    if (level == 'warn') console.warn(c.yellow(` http-server: (${c.bold(c.yellowBright(level))}) ${msg}`))
-  }
-
-  private constructor(private productName: string, private port: number) {
+  private constructor(private productName: string, private port: number, private logger: Logger) {
     this.koaServer = new Koa()
     this.koaServer
       .use(bodyParser())
@@ -45,13 +40,14 @@ export class KoaServer {
         }
       })
       .on('error', err => {
-        if (!isBoom(err)) this.log('warn', 'WARN:: Please use @hapi/boom to generate errors')
+        if (!isBoom(err)) this.logger.warn('WARN:: Please use @hapi/boom to generate errors')
+
         console.error(err)
       })
   }
 
-  static create(productName: string, port: number): KoaServer {
-    return new KoaServer(productName, port)
+  static create(options: { productName: string; port: number; logger: Logger }): KoaServer {
+    return new KoaServer(options.productName, options.port, options.logger)
   }
 
   setGlobalMiddlewares(mids: Middleware[]): this {
@@ -60,7 +56,7 @@ export class KoaServer {
   }
 
   boot(): Promise<this> {
-    this.log('debug', 'Boot started')
+    this.logger.debug('Boot started')
     return new Promise(res => {
       const router = new Router()
       router.use(...this.globalMiddlewares)
@@ -68,15 +64,14 @@ export class KoaServer {
       router.use(reservationsRouter.routes())
       this.koaServer.use(router.routes()).use(router.allowedMethods())
 
-      this.log(
-        'info',
+      this.logger.info(
         `Registered server routes:\n  ${router.stack
           .filter(ly => !ly.path.endsWith(')'))
           .map(ly => `[ ${ly.methods.filter(m => m != 'HEAD')} ] - ${ly.path}`)
           .join('\n  ')}`,
       )
 
-      this.log('debug', 'Boot ended')
+      this.logger.debug('Boot ended')
       this.state = 'BOOTED'
       res(this)
     })
@@ -88,7 +83,7 @@ export class KoaServer {
 
       this.runningServer = this.koaServer.listen(this.port, () => {
         this.state = 'STARTED'
-        this.log('info', `${this.productName}: 🚀 API is running on: ${c.bold(`[http(s)://host]:${this.port}`)}`)
+        this.logger.info(`${this.productName}: 🚀 API is running on: ${c.bold(`[http(s)://host]:${this.port}`)}`)
         return res(this)
       })
     })
@@ -101,6 +96,6 @@ export class KoaServer {
   async stop(): Promise<void> {
     if (this.runningServer) this.runningServer.close()
     this.state = 'CLOSED'
-    this.log('info', `🛌🏾 closed API running on ${c.bold(`[http(s)://host]:${this.port}`)}`)
+    this.logger.info(`🛌🏾 closed API running on ${c.bold(`[http(s)://host]:${this.port}`)}`)
   }
 }

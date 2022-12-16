@@ -1,5 +1,5 @@
 import { JSONType } from '../../custom-types'
-import Logger from '../logger'
+import { Logger } from '../logger'
 
 export abstract class CustomError<C extends string> extends Error {
   public issuedAt: Date

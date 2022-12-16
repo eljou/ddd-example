@@ -1,13 +1,13 @@
 import { Request, Response } from 'koa'
 import { z } from 'zod'
 
+import { ReservationCreator } from '@reservations/application/reservation-creator'
+import { NoCapacity } from '@reservations/domain/errors/no-capacity'
+import { ClientName } from '@reservations/domain/value-objects/client-name'
+import { ReservationDate } from '@reservations/domain/value-objects/reservation-date'
+import { InvalidArgument } from '@shared/domain/errors'
+import { CustomError } from '@shared/domain/errors/custom-error'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
-import { ReservationCreator } from '@src/bounded-contexts/reservations/application/reservation-creator'
-import { NoCapacity } from '@src/bounded-contexts/reservations/domain/errors/no-capacity'
-import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
-import { ReservationDate } from '@src/bounded-contexts/reservations/domain/value-objects/reservation-date'
-import { InvalidArgument } from '@src/bounded-contexts/shared/domain/errors'
-import { CustomError } from '@src/bounded-contexts/shared/domain/errors/custom-error'
 
 import { Controller } from '../controller'
 

@@ -1,7 +1,7 @@
 import Router from 'koa-router'
 
-import { ReservationCreator } from '@src/bounded-contexts/reservations/application/reservation-creator'
-import { FileReservationRepository } from '@src/bounded-contexts/reservations/infrastructure/persistance/file-reservation-repository'
+import { ReservationCreator } from '@reservations/application/reservation-creator'
+import { FileReservationRepository } from '@reservations/infrastructure/persistance/file-reservation-repository'
 
 import { CreateReservationController } from './controllers/create-reservation'
 
