@@ -1,4 +1,5 @@
 import { Request, Response } from 'koa'
+import { injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { ReservationCreator } from '@reservations/application/reservation-creator'
@@ -17,6 +18,7 @@ const bodySchema = z.object({
   seats: z.number().gt(0),
 })
 
+@injectable()
 export class CreateReservationController extends Controller {
   constructor(private useCase: ReservationCreator) {
     super()

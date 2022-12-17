@@ -1,3 +1,5 @@
+import { inject, injectable } from 'tsyringe'
+
 import { Criteria, Filter } from '@shared/domain/criteria'
 import { UseCase } from '@shared/domain/use-case'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
@@ -9,8 +11,10 @@ import { ClientName } from '../domain/value-objects/client-name'
 import { ReservationDate } from '../domain/value-objects/reservation-date'
 
 type Input = { clientName: ClientName; seats: PositiveNumber; date: ReservationDate }
+
+@injectable()
 export class ReservationCreator extends UseCase<Input, Reservation> {
-  constructor(private repository: ReservationRepository) {
+  constructor(@inject('ReservationRepository') private repository: ReservationRepository) {
     super()
   }
 

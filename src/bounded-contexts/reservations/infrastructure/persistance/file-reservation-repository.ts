@@ -1,6 +1,7 @@
 import { existsSync, promises, writeFileSync } from 'fs'
 
 import { deserialize, serialize } from 'bson'
+import { singleton } from 'tsyringe'
 
 import { Criteria, Filter } from '@shared/domain/criteria/'
 import { ValueObject } from '@shared/domain/value-objects/value-object'
@@ -10,6 +11,7 @@ import { Reservation } from '../../domain/reservation'
 import { ReservationRepository } from '../../domain/reservation-repository'
 import { ReservationId } from '../../domain/value-objects/reservation-id'
 
+@singleton()
 export class FileReservationRepository implements ReservationRepository {
   static ENCODING = 'utf-8' as const
   public dbFile = './db.txt'

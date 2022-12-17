@@ -1,11 +1,15 @@
+import 'reflect-metadata'
+import './dic'
+
 import { WinstonLogger } from '@shared/infrastructure/winston-logger'
 
 import { KoaServer } from './server'
+import { env } from './settings'
 
 const closeSignals = ['SIGTERM', 'SIGINT', 'SIGUSR2', 'SIGQUIT']
 
-const logger = new WinstonLogger('debug')
-KoaServer.create({ productName: 'reservations-backend', port: 8080, logger })
+const logger = new WinstonLogger(env.LOG_LEVEL)
+KoaServer.create({ productName: 'reservations-backend', port: env.PORT, logger })
   .setGlobalMiddlewares([
     async (ctx, next) => {
       const start = Date.now()

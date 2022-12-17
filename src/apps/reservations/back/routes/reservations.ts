@@ -1,16 +1,12 @@
 import Router from 'koa-router'
-
-import { ReservationCreator } from '@reservations/application/reservation-creator'
-import { FileReservationRepository } from '@reservations/infrastructure/persistance/file-reservation-repository'
+import { container } from 'tsyringe'
 
 import { CreateReservationController } from './controllers/create-reservation'
 
 const router = new Router()
+const controller = container.resolve(CreateReservationController)
 
 router.post('/reservation', async ctx => {
-  const repo = new FileReservationRepository()
-  const useCase = new ReservationCreator(repo)
-  const controller = new CreateReservationController(useCase)
   await controller.run(ctx)
 })
 
