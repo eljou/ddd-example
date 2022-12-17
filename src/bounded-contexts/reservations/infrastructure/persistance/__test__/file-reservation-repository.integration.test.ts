@@ -36,7 +36,7 @@ describe('FileReservationRepository', () => {
     expect(lines).toHaveLength(2)
     expect(lines[0]).not.toHaveLength(0)
 
-    const foundReservation = deserialize(Buffer.from(lines[0], 'hex'))
+    const foundReservation = deserialize(Buffer.from(lines[0], 'base64'))
     expect(foundReservation).toMatchObject(reservationToSave.toPrimitives())
   })
 
