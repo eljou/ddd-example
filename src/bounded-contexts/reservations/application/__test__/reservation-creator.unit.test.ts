@@ -1,3 +1,5 @@
+import { container } from 'tsyringe'
+
 import { PositiveNumberMother } from '@shared/domain/value-objects/__test__/positive-number-mother'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
@@ -9,12 +11,15 @@ import { InMemoryReservationRepository } from '../../infrastructure/persistance/
 import { ReservationCreator } from '../reservation-creator'
 
 describe('ReservationCreator', () => {
-  const repository = new InMemoryReservationRepository()
+  container.registerSingleton('ReservationRepository', InMemoryReservationRepository)
+
   let reservationCreator: ReservationCreator
+  let repository: InMemoryReservationRepository
 
   beforeEach(() => {
-    repository.clean()
-    reservationCreator = new ReservationCreator(repository)
+    container.clearInstances()
+    reservationCreator = container.resolve(ReservationCreator)
+    repository = container.resolve('ReservationRepository')
   })
 
   it('should fail for no capacity', async () => {

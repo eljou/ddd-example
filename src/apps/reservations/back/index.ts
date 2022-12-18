@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import './dic'
+import './container'
 
 import { WinstonLogger } from '@shared/infrastructure/winston-logger'
 

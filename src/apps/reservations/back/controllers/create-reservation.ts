@@ -10,7 +10,7 @@ import { InvalidArgument } from '@shared/domain/errors'
 import { CustomError } from '@shared/domain/errors/custom-error'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
-import { Controller } from '../controller'
+import { Controller } from './controller'
 
 const bodySchema = z.object({
   client_name: z.string().min(3),

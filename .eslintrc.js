@@ -26,7 +26,6 @@ module.exports = {
       },
     ],
     'import/no-unresolved': 'error',
-    // 'import/no-named-as-default-member': 'off',
     'import/order': [
       'error',
       {
@@ -47,6 +46,8 @@ module.exports = {
         },
       },
     ],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'warn',
   },
   settings: {
     'import/resolver': {

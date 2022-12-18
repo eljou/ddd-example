@@ -56,7 +56,7 @@ describe('FileReservationRepository', () => {
     const reservation = ReservationMother.randomWithProps({ clientName })
     await Promise.all([
       fileReservationRepository.add(reservation),
-      [...new Array(5)].map(() => fileReservationRepository.add(ReservationMother.random())),
+      ...[...new Array(5)].map(() => fileReservationRepository.add(ReservationMother.random())),
     ])
 
     const founds = await fileReservationRepository.search(

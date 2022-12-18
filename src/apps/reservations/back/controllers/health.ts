@@ -2,8 +2,8 @@ import fs from 'fs'
 
 import { Request, Response } from 'koa'
 
-import { env } from '../../settings'
-import { Controller } from '../controller'
+import { env } from '../settings'
+import { Controller } from './controller'
 
 export class HealthController extends Controller {
   async handle(req: Request, res: Response): Promise<void> {

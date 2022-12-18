@@ -1,3 +1,5 @@
+import { singleton } from 'tsyringe'
+
 import { Criteria, Filter } from '@shared/domain/criteria'
 import { ValueObject } from '@shared/domain/value-objects/value-object'
 import { assertNever, comparePrimitives } from '@shared/utility-functions'
@@ -14,6 +16,7 @@ type ReservationDB = {
   accepted: boolean
 }
 
+@singleton()
 export class InMemoryReservationRepository implements ReservationRepository {
   readonly db: Map<string, ReservationDB>
 

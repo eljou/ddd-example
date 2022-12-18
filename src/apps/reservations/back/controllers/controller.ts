@@ -1,14 +1,15 @@
 import * as boom from '@hapi/boom'
 import koa from 'koa'
+import { RouterContext } from 'koa-router'
 
 import { JSONType } from '@shared/custom-types'
 
 export abstract class Controller {
-  abstract handle(req: koa.Request, res: koa.Response): Promise<void>
+  abstract handle(req: koa.Request, res: koa.Response, params: Record<string, string>): Promise<void>
 
-  async run(ctx: koa.Context): Promise<void> {
+  async run(ctx: RouterContext): Promise<void> {
     try {
-      await this.handle(ctx.request, ctx.response)
+      await this.handle(ctx.request, ctx.response, ctx.params)
     } catch (error) {
       if (boom.isBoom(error)) throw error
 

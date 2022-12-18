@@ -61,7 +61,7 @@ export class KoaServer {
       const router = new Router()
       router.use(...this.globalMiddlewares)
       router.use(healthRouter.routes())
-      router.use(reservationsRouter.routes())
+      router.use('/reservation', reservationsRouter.routes())
       this.koaServer.use(router.routes()).use(router.allowedMethods())
 
       this.logger.info(
