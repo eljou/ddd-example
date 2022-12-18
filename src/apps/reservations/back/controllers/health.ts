@@ -1,11 +1,19 @@
 import fs from 'fs'
 
 import { Request, Response } from 'koa'
+import { inject, injectable } from 'tsyringe'
+
+import { Logger } from '@src/bounded-contexts/shared/domain/logger'
 
 import { env } from '../settings'
 import { Controller } from './controller'
 
+@injectable()
 export class HealthController extends Controller {
+  constructor(@inject('Logger') logger: Logger) {
+    super(logger)
+  }
+
   async handle(req: Request, res: Response): Promise<void> {
     const packageJsonFile = fs.readFileSync('./package.json', { encoding: 'utf-8' })
     const packageJson = JSON.parse(packageJsonFile)

@@ -4,8 +4,9 @@ import { deserialize, serialize } from 'bson'
 import { singleton } from 'tsyringe'
 
 import { Criteria, Filter } from '@shared/domain/criteria/'
+import { DatabaseFailure } from '@shared/domain/errors/database-error'
 import { ValueObject } from '@shared/domain/value-objects/value-object'
-import { assertNever, comparePrimitives } from '@shared/utility-functions'
+import { assertNever, comparePrimitives, makeSafeError } from '@shared/utility-functions'
 
 import { Reservation } from '../../domain/reservation'
 import { ReservationRepository } from '../../domain/reservation-repository'
@@ -51,13 +52,21 @@ export class FileReservationRepository implements ReservationRepository {
     }
   }
 
+  private errToDbFailure(operation: Parameters<typeof DatabaseFailure.create>[1]) {
+    return (err: unknown): never => {
+      throw DatabaseFailure.create(makeSafeError(err).message, operation, 'reservations')
+    }
+  }
+
   async add(r: Reservation): Promise<void> {
-    await promises.appendFile(this.dbFile, serialize(r.toPrimitives()).toString('base64') + '\n')
+    await promises
+      .appendFile(this.dbFile, serialize(r.toPrimitives()).toString('base64') + '\n')
+      .catch(this.errToDbFailure('insert'))
   }
 
   async getById(id: ReservationId): Promise<Reservation | null> {
     return (
-      (await this.dbLines())
+      (await this.dbLines().catch(this.errToDbFailure('read')))
         .filter(line => line.length != 0)
         .map(this.strToReservation)
         .find(res => res._id.value == id.value) ?? null
@@ -65,7 +74,7 @@ export class FileReservationRepository implements ReservationRepository {
   }
 
   async search({ filters, limit, offset = 0, order }: Criteria<Reservation>): Promise<Reservation[]> {
-    const reservations = (await this.dbLines())
+    const reservations = (await this.dbLines().catch(this.errToDbFailure('read')))
       .map(this.strToReservation)
       .filter(r => filters.reduce((prev, filter) => prev && this.evaluateFilter(r, filter), true))
       .slice(offset, limit ? offset + limit : undefined)

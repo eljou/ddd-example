@@ -10,3 +10,10 @@ export function comparePrimitives<P extends Exclude<Primitive, null>>(p1: P, p2:
   if (order == 'ASC') return p1 < p2 ? -1 : 1
   return p1 < p2 ? 1 : -1
 }
+
+export function makeSafeError(err: unknown): Error {
+  if (err instanceof Error) return err
+  if (typeof err == 'string') return new Error(err)
+  if (typeof err == 'object') return new Error(JSON.stringify(err))
+  return new Error(`${err}`)
+}
