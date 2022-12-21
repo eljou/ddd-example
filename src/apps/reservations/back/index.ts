@@ -5,6 +5,7 @@ import { container } from 'tsyringe'
 
 import { Logger } from '@shared/domain/logger'
 
+import { CustomRouteBuilder } from './custom-route'
 import { KoaServer } from './server'
 import { env } from './settings'
 
@@ -20,8 +21,19 @@ KoaServer.create({ productName: 'reservations-backend', port: env.PORT, logger }
       ctx.set('X-Response-Time', `${ms}ms`)
     },
   ])
-  .boot()
-  .then(server => server.start())
+  .registerRoute(
+    new CustomRouteBuilder<false>({ isPrivate: false }).get('/health', async ctx => {
+      ctx.body = null
+      ctx.status = 200
+    }),
+  )
+  .registerRoute(
+    new CustomRouteBuilder<false>({ isPrivate: false }).get('/ping', async ctx => {
+      ctx.body = null
+      ctx.status = 200
+    }),
+  )
+  .start()
   .then(server => {
     closeSignals.forEach(s =>
       process.on(s, async () => {

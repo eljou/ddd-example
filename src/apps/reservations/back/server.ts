@@ -6,17 +6,19 @@ import c from 'ansi-colors'
 import Koa, { Middleware } from 'koa'
 import bodyParser from 'koa-bodyparser'
 import Router from 'koa-router'
+import { ZodType } from 'zod'
 
 import { Logger } from '@shared/domain/logger'
+import { JSONType } from '@src/bounded-contexts/shared/custom-types'
 
-import healthRouter from './routes/health'
-import reservationsRouter from './routes/reservations'
+import { CustomRoute } from './custom-route'
 
 export class KoaServer {
-  private state: 'CREATED' | 'STARTED' | 'BOOTED' | 'CLOSED' = 'CREATED'
+  private state: 'CREATED' | 'STARTED' | 'CLOSED' = 'CREATED'
   private koaServer: Koa
   private runningServer: Server | null = null
   private globalMiddlewares: Middleware[] = []
+  private router: Router = new Router()
 
   private constructor(private productName: string, private port: number, private logger: Logger) {
     this.koaServer = new Koa()
@@ -55,31 +57,30 @@ export class KoaServer {
     return this
   }
 
-  boot(): Promise<this> {
-    this.logger.debug('Boot started')
-    return new Promise(res => {
-      const router = new Router()
-      router.use(...this.globalMiddlewares)
-      router.use(healthRouter.routes())
-      router.use('/reservation', reservationsRouter.routes())
-      this.koaServer.use(router.routes()).use(router.allowedMethods())
+  registerRoute<IsPrivate extends boolean, ReqSchem extends ZodType | null = null, ResBody extends JSONType = null>(
+    customRoute: CustomRoute<IsPrivate, ReqSchem, ResBody>,
+  ): this {
+    if (Array.isArray(customRoute.handler)) {
+      this.router[customRoute.method](customRoute.path, ...(customRoute.handler as Router.IMiddleware[]))
+    } else {
+      this.router[customRoute.method](customRoute.path, customRoute.handler as Router.IMiddleware)
+    }
 
-      this.logger.info(
-        `Registered server routes:\n  ${router.stack
-          .filter(ly => !ly.path.endsWith(')'))
-          .map(ly => `[ ${ly.methods.filter(m => m != 'HEAD')} ] - ${ly.path}`)
-          .join('\n  ')}`,
-      )
-
-      this.logger.debug('Boot ended')
-      this.state = 'BOOTED'
-      res(this)
-    })
+    return this
   }
 
   start(): Promise<this> {
     return new Promise(res => {
-      if (this.state != 'BOOTED') throw new Error('App must boot first')
+      if (this.state != 'CREATED') throw new Error('App must be created')
+      this.router.use(...this.globalMiddlewares)
+      this.koaServer.use(this.router.routes()).use(this.router.allowedMethods())
+
+      this.logger.info(
+        `Registered server routes:\n  ${this.router.stack
+          .filter(ly => !ly.path.endsWith(')'))
+          .map(ly => `[ ${ly.methods.filter(m => m != 'HEAD')} ] - ${ly.path}`)
+          .join('\n  ')}`,
+      )
 
       this.runningServer = this.koaServer.listen(this.port, () => {
         this.state = 'STARTED'
