@@ -1,10 +1,34 @@
+/* eslint-disable @typescript-eslint/ban-types */
 export type Primitive = string | number | boolean | Date | null
 
 export type JSONType = Exclude<Primitive, 'Date'> | Array<JSONType> | { [key: string]: JSONType }
 
 export type OrderType = 'ASC' | 'DEC'
 
-declare const __type__: unique symbol
+type Methods<T> = {
+  [P in keyof T]: T[P] extends Function ? P : never
+}[keyof T]
+
+type MethodsAndProperties<T> = { [key in keyof T]: T[key] }
+
+type Properties<T> = Omit<MethodsAndProperties<T>, Methods<T>>
+
+type Obj = { [key: string]: unknown } | object
+type ValueObjectValue<T> = {
+  [key in keyof T]: T[key] extends { value: unknown }
+    ? Pick<T[key], 'value'>['value']
+    : T[key] extends Array<{ value: unknown }>
+    ? Pick<T[key][number], 'value'>['value'][]
+    : T[key] extends Array<Obj>
+    ? ToPrimitives<T[key][number]>[]
+    : T[key] extends Obj
+    ? ToPrimitives<T[key]>
+    : T[key]
+}
+
+export type ToPrimitives<T> = ValueObjectValue<Properties<T>>
+
+/* declare const __type__: unique symbol
 declare const __brand__: unique symbol
 type Opaque<T, K = unknown> = T & {
   readonly [__type__]: T
@@ -23,22 +47,4 @@ const Opaque = {
   create: <O extends Opaque<unknown>>(value: BaseType<O>): O => value as O,
   widen: <O extends Opaque<unknown>>(value: O): BaseType<O> => value,
 }
-
-type UserName = Opaque<string, 'username'>
-const UserName: OpaqueBuilder<UserName> = {
-  create: value => {
-    if (value.split(' ').length <= 1) throw new Error('Invalid username')
-    return Opaque.create(value)
-  },
-
-  tryCreate: value => {
-    try {
-      const uname = UserName.create(value)
-      return { kind: 'success', value: uname }
-    } catch (error) {
-      return { kind: 'failed', err: error as Error }
-    }
-  },
-
-  widen: value => Opaque.widen(value),
-}
+ */

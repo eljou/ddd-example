@@ -1,7 +1,8 @@
-import { Entity } from '@shared/domain/entity'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
+import { AggregateRoot } from '@src/bounded-contexts/shared/domain/aggregate-root'
 
 import { NoCapacity } from './errors/no-capacity'
+import { ReservationCreated } from './reservation-created-event'
 import { ClientName } from './value-objects/client-name'
 import { ReservationDate } from './value-objects/reservation-date'
 import { ReservationId } from './value-objects/reservation-id'
@@ -20,9 +21,10 @@ export type ReservationProps = {
   date: ReservationDate
   accepted: boolean
 }
-export class Reservation extends Entity<ReservationProps> {
+export class Reservation extends AggregateRoot<ReservationProps> {
   private constructor(props: ReservationProps, id?: ReservationId) {
     super(props, id)
+    this.record(new ReservationCreated({ aggregateId: this._id, attributes: props }))
   }
 
   static create(props: Omit<ReservationProps, 'accepted'> & { id?: ReservationId }): Reservation {

@@ -17,3 +17,9 @@ export function makeSafeError(err: unknown): Error {
   if (typeof err == 'object') return new Error(JSON.stringify(err))
   return new Error(`${err}`)
 }
+
+export function formatBytes(n: number): string {
+  const k = n > 0 ? Math.floor(Math.log2(n) / 10) : 0
+  const rank = (k > 0 ? 'KMGT'[k - 1] : '') + 'b'
+  return `${(n / Math.pow(1024, k)).toFixed(2)} ${rank}`
+}
