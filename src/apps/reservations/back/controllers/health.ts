@@ -1,20 +1,21 @@
 import fs from 'fs'
 
-import { Request, Response } from 'koa'
 import { inject, injectable } from 'tsyringe'
 
 import { Logger } from '@src/bounded-contexts/shared/domain/logger'
+import { formatBytes } from '@src/bounded-contexts/shared/utility-functions'
 
+import { KoaContex } from '../custom-route'
 import { env } from '../settings'
 import { Controller } from './controller'
 
 @injectable()
-export class HealthController extends Controller {
+export class HealthController extends Controller<false> {
   constructor(@inject('Logger') logger: Logger) {
     super(logger)
   }
 
-  async handle(req: Request, res: Response): Promise<void> {
+  async handle(ctx: KoaContex<false>): Promise<void> {
     const packageJsonFile = fs.readFileSync('./package.json', { encoding: 'utf-8' })
     const packageJson = JSON.parse(packageJsonFile)
 
@@ -28,13 +29,7 @@ export class HealthController extends Controller {
       return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`
     }
 
-    function formatBytes(n: number): string {
-      const k = n > 0 ? Math.floor(Math.log2(n) / 10) : 0
-      const rank = (k > 0 ? 'KMGT'[k - 1] : '') + 'b'
-      return `${(n / Math.pow(1024, k)).toFixed(2)} ${rank}`
-    }
-
-    this.ok(res, {
+    this.ok(ctx.response, {
       node_version: process.version,
       app_version: `v${packageJson['version']}`,
       memory: Object.entries(process.memoryUsage()).reduce(

@@ -1,12 +1,12 @@
-import Router from 'koa-router'
 import { container } from 'tsyringe'
 
 import { FindByClientNameReservationController } from '../../controllers/reservations/find-by-client-name'
+import { CustomRouteBuilder } from '../../custom-route'
 
-export function registerFindByClientNameRoute(router: Router): Router {
-  const controller = container.resolve(FindByClientNameReservationController)
-
-  router.get('/', async ctx => controller.run(ctx))
-
-  return router
-}
+const controller = container.resolve(FindByClientNameReservationController)
+export const findByClientNameRoute = new CustomRouteBuilder<
+  false,
+  typeof FindByClientNameReservationController.bodySchema
+>({ isPrivate: false })
+  .setBodySchema(FindByClientNameReservationController.bodySchema)
+  .get('/', controller.run)

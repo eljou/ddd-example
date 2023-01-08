@@ -1,11 +1,4 @@
-import Router from 'koa-router'
+import { createRoute } from './create'
+import { findByClientNameRoute } from './find-by-client-name'
 
-import { registerCreateRoute } from './create'
-import { registerFindByClientNameRoute } from './find-by-client-name'
-
-const router = new Router()
-
-registerCreateRoute(router)
-registerFindByClientNameRoute(router)
-
-export default router
+export default [createRoute, findByClientNameRoute]

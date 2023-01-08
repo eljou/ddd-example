@@ -1,19 +1,24 @@
 import * as boom from '@hapi/boom'
 import koa from 'koa'
-import { RouterContext } from 'koa-router'
 
 import { JSONType } from '@shared/custom-types'
 import { Logger } from '@shared/domain/logger'
 import { makeSafeError } from '@shared/utility-functions'
 
-export abstract class Controller {
+import { KoaContex } from '../custom-route'
+
+export abstract class Controller<
+  IsPrivate extends boolean,
+  ReqBody extends JSONType = Record<string, never>,
+  ResBody extends JSONType | unknown = unknown,
+> {
   constructor(private logger: Logger) {}
 
-  abstract handle(req: koa.Request, res: koa.Response, params: Record<string, string>): Promise<void>
+  abstract handle(ctx: KoaContex<IsPrivate, ReqBody, ResBody>): Promise<void>
 
-  async run(ctx: RouterContext): Promise<void> {
+  async run(ctx: KoaContex<IsPrivate, ReqBody, ResBody>): Promise<void> {
     try {
-      await this.handle(ctx.request, ctx.response, ctx.params)
+      await this.handle(ctx)
       this.logger.debug(`-> status: ${ctx.response.status} route: [${ctx.request.method} ${ctx.request.path}]`)
     } catch (error) {
       if (boom.isBoom(error)) throw error

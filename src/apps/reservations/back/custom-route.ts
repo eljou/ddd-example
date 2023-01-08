@@ -1,4 +1,4 @@
-import { ParameterizedContext } from 'koa'
+import { Next, ParameterizedContext } from 'koa'
 import Router from 'koa-router'
 import { ZodType, z } from 'zod'
 
@@ -6,17 +6,17 @@ import { JSONType } from '@src/bounded-contexts/shared/custom-types'
 
 type GetZodSchemaOutput<P extends ZodType> = P extends ZodType<infer O, infer D, infer I> ? O : never
 
-type Path = string | string[] | RegExp
+type Path = string
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head'
 
 type AuthParams = {
   userName: string
   role: number
 }
-type KoaContex<
+export type KoaContex<
   IsPrivate extends boolean,
-  ReqBody extends JSONType = null,
-  ResBody extends JSONType = null,
+  ReqBody extends JSONType = Record<string, never>,
+  ResBody extends JSONType | unknown = unknown,
 > = (IsPrivate extends true
   ? ParameterizedContext<AuthParams, Router.IRouterParamContext<AuthParams, Record<string, never>>, ResBody>
   : ParameterizedContext<undefined, Router.IRouterParamContext<undefined, Record<string, never>>, ResBody>) & {
@@ -25,9 +25,11 @@ type KoaContex<
   }
 }
 
-type RouteHandler<IsPrivate extends boolean, ReqBody extends JSONType = null, ResBody extends JSONType = null> = (
-  ctx: KoaContex<IsPrivate, ReqBody, ResBody>,
-) => Promise<void>
+export type RouteHandler<
+  IsPrivate extends boolean,
+  ReqBody extends JSONType = Record<string, never>,
+  ResBody extends JSONType | unknown = unknown,
+> = (ctx: KoaContex<IsPrivate, ReqBody, ResBody>, next: Next) => Promise<void>
 
 type BaseRoute<IsPrivate extends boolean> = {
   isPrivate: IsPrivate
@@ -36,9 +38,9 @@ type BaseRoute<IsPrivate extends boolean> = {
 }
 
 export type CustomRoute<
-  IsPrivate extends boolean,
+  IsPrivate extends boolean = true,
   ReqSchem extends ZodType | null = null,
-  ResBody extends JSONType = null,
+  ResBody extends JSONType | unknown = unknown,
 > = ReqSchem extends ZodType
   ? BaseRoute<IsPrivate> & {
       bodySchema: ReqSchem
@@ -47,13 +49,16 @@ export type CustomRoute<
         | Array<RouteHandler<IsPrivate, GetZodSchemaOutput<ReqSchem>, ResBody>>
     }
   : BaseRoute<IsPrivate> & {
-      handler: RouteHandler<IsPrivate, null, ResBody> | Array<RouteHandler<IsPrivate, null, ResBody>>
+      bodySchema: null
+      handler:
+        | RouteHandler<IsPrivate, Record<string, never>, ResBody>
+        | Array<RouteHandler<IsPrivate, Record<string, never>, ResBody>>
     }
 
 export class CustomRouteBuilder<
-  IsPrivate extends boolean = false,
+  IsPrivate extends boolean = true,
   ReqSchem extends ZodType | null = null,
-  ResBody extends JSONType = null,
+  ResBody extends JSONType | unknown = unknown,
 > {
   private isPrivate: IsPrivate
   private bodySchema: ReqSchem = null as ReqSchem

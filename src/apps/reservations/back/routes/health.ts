@@ -1,13 +1,7 @@
-import Router from 'koa-router'
 import { container } from 'tsyringe'
 
 import { HealthController } from '../controllers/health'
+import { CustomRouteBuilder } from '../custom-route'
 
-const router = new Router()
 const controller = container.resolve(HealthController)
-
-router.get('/health', async ctx => {
-  controller.run(ctx)
-})
-
-export default router
+export const healthRoute = new CustomRouteBuilder<false>({ isPrivate: false }).get('/health', controller.run)

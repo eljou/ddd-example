@@ -1,4 +1,3 @@
-import { Request, Response } from 'koa'
 import { inject, injectable } from 'tsyringe'
 import { z } from 'zod'
 
@@ -10,34 +9,34 @@ import { InvalidArgument } from '@shared/domain/errors'
 import { Logger } from '@shared/domain/logger'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
+import { KoaContex } from '../../custom-route'
 import { Controller } from '../controller'
 
-const bodySchema = z.object({
-  client_name: z.string().min(3),
-  date: z.string().datetime(),
-  seats: z.number().gt(0),
-})
-
 @injectable()
-export class CreateReservationController extends Controller {
+export class CreateReservationController extends Controller<
+  false,
+  z.infer<typeof CreateReservationController.bodySchema>
+> {
   constructor(private useCase: ReservationCreator, @inject('Logger') logger: Logger) {
     super(logger)
   }
 
-  async handle(req: Request, res: Response): Promise<void> {
+  static bodySchema = z.object({
+    client_name: z.string().min(3),
+    date: z.string().datetime(),
+    seats: z.number().gt(0),
+  })
+
+  async handle(ctx: KoaContex<false, z.infer<typeof CreateReservationController.bodySchema>>): Promise<void> {
     try {
-      const parsedBody = bodySchema.safeParse(req.body)
-
-      if (!parsedBody.success) return this.badRequest('Input validation error', parsedBody.error.flatten().fieldErrors)
-
-      const { data } = parsedBody
+      const data = ctx.request.body
       const result = await this.useCase.run({
         clientName: new ClientName(data.client_name),
         date: new ReservationDate(new Date(data.date)),
         seats: new PositiveNumber(data.seats),
       })
 
-      return this.ok(res, result.toPrimitives())
+      return this.ok(ctx.response, result.toPrimitives())
     } catch (error) {
       if (error instanceof InvalidArgument) this.badRequest(error.name, error.toJSON())
       if (error instanceof NoCapacity) this.notAcceptable(error.name, error.toJSON())

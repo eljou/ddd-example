@@ -1,12 +1,12 @@
 import { Server } from 'http'
 
-import { isBoom } from '@hapi/boom'
+import { badRequest, isBoom } from '@hapi/boom'
 import koaCors from '@koa/cors'
 import c from 'ansi-colors'
 import Koa, { Middleware } from 'koa'
 import bodyParser from 'koa-bodyparser'
 import Router from 'koa-router'
-import { ZodType } from 'zod'
+import { ZodError, ZodType } from 'zod'
 
 import { Logger } from '@shared/domain/logger'
 import { JSONType } from '@src/bounded-contexts/shared/custom-types'
@@ -57,14 +57,49 @@ export class KoaServer {
     return this
   }
 
-  registerRoute<IsPrivate extends boolean, ReqSchem extends ZodType | null = null, ResBody extends JSONType = null>(
-    customRoute: CustomRoute<IsPrivate, ReqSchem, ResBody>,
-  ): this {
+  registerRoutesOverPath(path: `/${string}`, routes: CustomRoute<boolean, ZodType | null, JSONType | unknown>[]): this {
+    routes
+      .map(r => ({
+        ...r,
+        path: `${path}${r.path.startsWith('/') ? '' : '/'}${r.path}`.replace(/\/*$/, ''),
+      }))
+      .forEach(r => this.registerRoute(r))
+    return this
+  }
+
+  registerRoute<
+    IsPrivate extends boolean,
+    ReqSchem extends ZodType | null = null,
+    ResBody extends JSONType | unknown = unknown,
+  >(customRoute: CustomRoute<IsPrivate, ReqSchem, ResBody>): this {
+    let midds: Router.IMiddleware[] = []
+    if (customRoute.isPrivate)
+      midds.push(async (ctx, next) => {
+        console.log('autenticated')
+        ctx.state = {
+          userName: 'jhon',
+          role: 1,
+        }
+        await next()
+      })
+
+    if (customRoute.bodySchema)
+      midds.push(async (ctx, next) => {
+        try {
+          customRoute.bodySchema.parse(ctx.request.body)
+          await next()
+        } catch (error) {
+          throw badRequest('Invalid request body', { ...(error as ZodError).flatten().fieldErrors })
+        }
+      })
+
     if (Array.isArray(customRoute.handler)) {
-      this.router[customRoute.method](customRoute.path, ...(customRoute.handler as Router.IMiddleware[]))
+      midds = [...midds, ...(customRoute.handler as Router.IMiddleware[])]
     } else {
-      this.router[customRoute.method](customRoute.path, customRoute.handler as Router.IMiddleware)
+      midds = [...midds, customRoute.handler as Router.IMiddleware]
     }
+
+    this.router[customRoute.method](customRoute.path, ...midds)
 
     return this
   }
