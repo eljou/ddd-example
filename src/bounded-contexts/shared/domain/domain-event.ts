@@ -2,13 +2,19 @@ import { ToPrimitives } from '../custom-types'
 import { GenericId } from './value-objects/id'
 import { NonEmptyString } from './value-objects/non-empty-string'
 
-export abstract class DomainEvent<T = unknown> {
+export class EventName<V extends string = string> extends NonEmptyString {
+  constructor(value: V) {
+    super(value)
+  }
+}
+
+export abstract class DomainEvent<E extends EventName = EventName> {
   readonly aggregateId: GenericId
   readonly eventId: GenericId
   readonly occurredOn: Date
-  readonly eventName: NonEmptyString
+  readonly eventName: E
 
-  constructor(params: { eventName: NonEmptyString; aggregateId: GenericId; eventId?: GenericId; occurredOn?: Date }) {
+  constructor(params: { eventName: E; aggregateId: GenericId; eventId?: GenericId; occurredOn?: Date }) {
     const { aggregateId, eventName, eventId, occurredOn } = params
     this.aggregateId = aggregateId
     this.eventName = eventName
@@ -16,5 +22,14 @@ export abstract class DomainEvent<T = unknown> {
     this.occurredOn = occurredOn ?? new Date()
   }
 
-  abstract toPrimitives(): ToPrimitives<T>
+  protected getBasePrimitives(): ToPrimitives<DomainEvent> {
+    return {
+      aggregateId: this.aggregateId.value,
+      eventId: this.eventId.value,
+      eventName: this.eventName.value,
+      occurredOn: this.occurredOn,
+    }
+  }
+
+  abstract toPrimitives(): unknown
 }

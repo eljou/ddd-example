@@ -8,4 +8,4 @@ export const createRoute = new CustomRouteBuilder<false, typeof CreateReservatio
   isPrivate: false,
 })
   .setBodySchema(CreateReservationController.bodySchema)
-  .post('/', controller.run)
+  .post('/', ctx => controller.run(ctx))

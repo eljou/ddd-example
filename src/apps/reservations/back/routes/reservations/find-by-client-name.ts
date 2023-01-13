@@ -9,4 +9,4 @@ export const findByClientNameRoute = new CustomRouteBuilder<
   typeof FindByClientNameReservationController.bodySchema
 >({ isPrivate: false })
   .setBodySchema(FindByClientNameReservationController.bodySchema)
-  .get('/', controller.run)
+  .get('/', ctx => controller.run(ctx))

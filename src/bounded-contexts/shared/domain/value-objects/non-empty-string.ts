@@ -1,3 +1,4 @@
+import { ToPrimitives } from '../../custom-types'
 import { InvalidArgument } from '../errors'
 import { ValueObject } from './value-object'
 

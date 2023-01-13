@@ -38,6 +38,7 @@ export class CreateReservationController extends Controller<
 
       return this.ok(ctx.response, result.toPrimitives())
     } catch (error) {
+      console.log(error)
       if (error instanceof InvalidArgument) this.badRequest(error.name, error.toJSON())
       if (error instanceof NoCapacity) this.notAcceptable(error.name, error.toJSON())
       throw error

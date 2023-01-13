@@ -1,13 +1,17 @@
 import { OrderType, Primitive } from '../../custom-types'
 import { InvalidArgument } from '../errors'
 
-export abstract class ValueObject<T extends Primitive> {
+export abstract class ValueObject<T extends Primitive | Record<string, Primitive | ValueObject> = Primitive> {
   constructor(public readonly value: T) {
     this.ensureValueIsDefined(value)
   }
 
   private ensureValueIsDefined(value: T): void {
-    if (value === null || value === undefined) {
+    if (
+      value === null ||
+      value === undefined ||
+      (typeof value == 'object' && !(value instanceof Date) && Object.keys(value).length == 0)
+    ) {
       throw InvalidArgument.create('Value must be defined')
     }
   }

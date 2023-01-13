@@ -87,10 +87,11 @@ export class KoaServer {
       midds.push(async (ctx, next) => {
         try {
           customRoute.bodySchema.parse(ctx.request.body)
-          await next()
         } catch (error) {
           throw badRequest('Invalid request body', { ...(error as ZodError).flatten().fieldErrors })
         }
+
+        await next()
       })
 
     if (Array.isArray(customRoute.handler)) {

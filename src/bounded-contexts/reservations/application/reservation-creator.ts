@@ -3,6 +3,7 @@ import { inject, injectable } from 'tsyringe'
 import { Criteria, Filter } from '@shared/domain/criteria'
 import { UseCase } from '@shared/domain/use-case'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
+import { EventBus } from '@src/bounded-contexts/shared/domain/event-bus'
 
 import { Reservation } from '../domain/reservation'
 import { ReservationRepository } from '../domain/reservation-repository'
@@ -14,7 +15,10 @@ type Input = { clientName: ClientName; seats: PositiveNumber; date: ReservationD
 
 @injectable()
 export class ReservationCreator extends UseCase<Input, Reservation> {
-  constructor(@inject('ReservationRepository') private repository: ReservationRepository) {
+  constructor(
+    @inject('ReservationRepository') private readonly repository: ReservationRepository,
+    @inject('EventBus') private readonly eventBus: EventBus,
+  ) {
     super()
   }
 
@@ -32,6 +36,8 @@ export class ReservationCreator extends UseCase<Input, Reservation> {
     reservation.tryAcceptReservation(previousReservations, totalCapacity)
 
     await this.repository.add(reservation)
+    await this.eventBus.publish(reservation.pullDomainEvents())
+
     return reservation
   }
 }
