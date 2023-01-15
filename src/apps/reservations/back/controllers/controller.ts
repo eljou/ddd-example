@@ -3,9 +3,8 @@ import koa from 'koa'
 
 import { JSONType } from '@shared/custom-types'
 import { Logger } from '@shared/domain/logger'
+import { KoaContex } from '@shared/infrastructure/http-server'
 import { makeSafeError } from '@shared/utility-functions'
-
-import { KoaContex } from '../custom-route'
 
 export abstract class Controller<
   IsPrivate extends boolean,

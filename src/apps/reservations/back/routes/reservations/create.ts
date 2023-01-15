@@ -1,7 +1,8 @@
 import { container } from 'tsyringe'
 
+import { CustomRouteBuilder } from '@shared/infrastructure/http-server'
+
 import { CreateReservationController } from '../../controllers/reservations/create-reservation'
-import { CustomRouteBuilder } from '../../custom-route'
 
 const controller = container.resolve(CreateReservationController)
 export const createRoute = new CustomRouteBuilder<false, typeof CreateReservationController.bodySchema>({

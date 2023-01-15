@@ -1,26 +1,44 @@
 import EventEmitter from 'events'
 
-import { singleton } from 'tsyringe'
+import { inject, singleton } from 'tsyringe'
 
 import { DomainEvent } from '../domain/domain-event'
 import { DomainEventSubscriber } from '../domain/domain-event-subscriber'
 import { EventBus } from '../domain/event-bus'
+import { Logger } from '../domain/logger'
 
 const eventEmitter = new EventEmitter()
 
 @singleton()
 export class InMemoryAsyncEventBus implements EventBus {
+  constructor(@inject('Logger') private readonly logger: Logger) {}
+
+  private subscribers: Array<DomainEventSubscriber<DomainEvent>> = []
+
   async publish(events: DomainEvent[]): Promise<void> {
     events.forEach(event => {
       eventEmitter.emit(event.eventName.value, event)
+      this.logger.debug(`published event: ${event.eventName.value}`)
     })
   }
 
   addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
-    subscribers.forEach(subscriber => {
+    this.subscribers = subscribers
+
+    this.subscribers.forEach(subscriber => {
       subscriber.subscribedTo().forEach(eventName => {
         eventEmitter.on(eventName.value, subscriber.on.bind(subscriber))
+        this.logger.debug(`subscriber ready on event: ${eventName.value}`)
       })
     })
+  }
+
+  async onClose(): Promise<void> {
+    this.subscribers.forEach(sub =>
+      sub.subscribedTo().forEach(event => {
+        eventEmitter.removeAllListeners(event.value)
+        this.logger.debug(`listener removed for: ${event.value}`)
+      }),
+    )
   }
 }

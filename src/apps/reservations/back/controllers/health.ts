@@ -2,10 +2,10 @@ import fs from 'fs'
 
 import { inject, injectable } from 'tsyringe'
 
-import { Logger } from '@src/bounded-contexts/shared/domain/logger'
-import { formatBytes } from '@src/bounded-contexts/shared/utility-functions'
+import { Logger } from '@shared/domain/logger'
+import { KoaContex } from '@shared/infrastructure/http-server'
+import { formatBytes } from '@shared/utility-functions'
 
-import { KoaContex } from '../custom-route'
 import { env } from '../settings'
 import { Controller } from './controller'
 

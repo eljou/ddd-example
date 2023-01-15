@@ -8,8 +8,8 @@ import { ReservationDate } from '@reservations/domain/value-objects/reservation-
 import { InvalidArgument } from '@shared/domain/errors'
 import { Logger } from '@shared/domain/logger'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
+import { KoaContex } from '@shared/infrastructure/http-server'
 
-import { KoaContex } from '../../custom-route'
 import { Controller } from '../controller'
 
 @injectable()

@@ -1,12 +1,8 @@
 import { DomainEvent, EventName } from '@shared/domain/domain-event'
 import { ToPrimitives } from '@src/bounded-contexts/shared/custom-types'
 import { GenericId } from '@src/bounded-contexts/shared/domain/value-objects/id'
-import { NonEmptyString } from '@src/bounded-contexts/shared/domain/value-objects/non-empty-string'
-import { PositiveNumber } from '@src/bounded-contexts/shared/domain/value-objects/positive-number'
 
 import { ReservationProps } from './reservation'
-import { ClientName } from './value-objects/client-name'
-import { ReservationDate } from './value-objects/reservation-date'
 
 export class ReservationCreated extends DomainEvent<EventName<'reservation.created'>> {
   static EVENT_NAME = new EventName('reservation.created')

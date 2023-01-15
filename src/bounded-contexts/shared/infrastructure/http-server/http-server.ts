@@ -8,9 +8,8 @@ import bodyParser from 'koa-bodyparser'
 import Router from 'koa-router'
 import { ZodError, ZodType } from 'zod'
 
-import { Logger } from '@shared/domain/logger'
-import { JSONType } from '@src/bounded-contexts/shared/custom-types'
-
+import { JSONType } from '../../custom-types'
+import { Logger } from '../../domain/logger'
 import { CustomRoute } from './custom-route'
 
 export class KoaServer {

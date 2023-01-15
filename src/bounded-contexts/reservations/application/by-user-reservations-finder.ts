@@ -12,7 +12,7 @@ type Input = { clientName: ClientName; date?: ReservationDate }
 
 @injectable()
 export class ByUserReservationsFinder extends UseCase<Input, Reservation[]> {
-  constructor(@inject('ReservationRepository') private repository: ReservationRepository) {
+  constructor(@inject('ReservationRepository') private readonly repository: ReservationRepository) {
     super()
   }
 

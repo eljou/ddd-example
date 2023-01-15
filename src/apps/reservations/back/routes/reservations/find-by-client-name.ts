@@ -1,7 +1,8 @@
 import { container } from 'tsyringe'
 
+import { CustomRouteBuilder } from '@shared/infrastructure/http-server'
+
 import { FindByClientNameReservationController } from '../../controllers/reservations/find-by-client-name'
-import { CustomRouteBuilder } from '../../custom-route'
 
 const controller = container.resolve(FindByClientNameReservationController)
 export const findByClientNameRoute = new CustomRouteBuilder<

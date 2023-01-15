@@ -2,12 +2,12 @@ import { inject, injectable } from 'tsyringe'
 import { z } from 'zod'
 
 import { Logger } from '@shared/domain/logger'
+import { KoaContex } from '@shared/infrastructure/http-server'
 import { ByUserReservationsFinder } from '@src/bounded-contexts/reservations/application/by-user-reservations-finder'
 import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
 import { ReservationDate } from '@src/bounded-contexts/reservations/domain/value-objects/reservation-date'
 import { InvalidArgument } from '@src/bounded-contexts/shared/domain/errors'
 
-import { KoaContex } from '../../custom-route'
 import { Controller } from '../controller'
 
 @injectable()
