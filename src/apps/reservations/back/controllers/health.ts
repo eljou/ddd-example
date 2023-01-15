@@ -6,8 +6,8 @@ import { Logger } from '@shared/domain/logger'
 import { KoaContex } from '@shared/infrastructure/http-server'
 import { formatBytes } from '@shared/utility-functions'
 
-import { env } from '../settings'
 import { Controller } from './controller'
+import { env } from '../settings'
 
 @injectable()
 export class HealthController extends Controller<false> {

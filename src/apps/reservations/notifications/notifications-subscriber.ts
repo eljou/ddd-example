@@ -1,12 +1,12 @@
 import { inject, singleton } from 'tsyringe'
 
+import { NotificationSender } from '@notifications/application/notification-sender'
+import { Email } from '@notifications/domain/value-objects/email'
+import { ReservationCreated } from '@reservations/domain/reservation-created-event'
+import { EventName } from '@shared/domain/domain-event'
 import { DomainEventSubscriber } from '@shared/domain/domain-event-subscriber'
 import { Logger } from '@shared/domain/logger'
 import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
-import { NotificationSender } from '@src/bounded-contexts/notifications/application/notification-sender'
-import { Email } from '@src/bounded-contexts/notifications/domain/value-objects/email'
-import { ReservationCreated } from '@src/bounded-contexts/reservations/domain/reservation-created-event'
-import { EventName } from '@src/bounded-contexts/shared/domain/domain-event'
 
 @singleton()
 export class NotificationsSubscriber implements DomainEventSubscriber<ReservationCreated> {

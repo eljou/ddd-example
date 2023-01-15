@@ -1,8 +1,8 @@
 import { Next, ParameterizedContext } from 'koa'
 import Router from 'koa-router'
-import { ZodType, z } from 'zod'
+import { ZodType } from 'zod'
 
-import { JSONType } from '@src/bounded-contexts/shared/custom-types'
+import { JSONType } from '@shared/custom-types'
 
 type GetZodSchemaOutput<P extends ZodType> = P extends ZodType<infer O, infer D, infer I> ? O : never
 

@@ -1,6 +1,6 @@
+import { ToPrimitives } from '@shared/custom-types'
 import { DomainEvent, EventName } from '@shared/domain/domain-event'
-import { ToPrimitives } from '@src/bounded-contexts/shared/custom-types'
-import { GenericId } from '@src/bounded-contexts/shared/domain/value-objects/id'
+import { GenericId } from '@shared/domain/value-objects/id'
 
 import { ReservationProps } from './reservation'
 

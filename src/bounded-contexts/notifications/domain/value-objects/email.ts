@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
+import { InvalidArgument } from '@shared/domain/errors'
 import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
-import { InvalidArgument } from '@src/bounded-contexts/shared/domain/errors'
 
 export class Email extends NonEmptyString {
   constructor(value: string) {

@@ -1,8 +1,8 @@
 import { container } from 'tsyringe'
 
+import { EmailNotificatorService } from '@notifications/infrastructure/email-notificator.service'
 import { InMemoryAsyncEventBus } from '@shared/infrastructure/in-memory-event-bus'
 import { WinstonLogger } from '@shared/infrastructure/winston-logger'
-import { EmailNotificatorService } from '@src/bounded-contexts/notifications/infrastructure/email-notificator.service'
 
 import { env } from '../settings'
 

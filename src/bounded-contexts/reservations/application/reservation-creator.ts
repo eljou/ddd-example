@@ -1,9 +1,9 @@
 import { inject, injectable } from 'tsyringe'
 
 import { Criteria, Filter } from '@shared/domain/criteria'
+import { EventBus } from '@shared/domain/event-bus'
 import { UseCase } from '@shared/domain/use-case'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
-import { EventBus } from '@src/bounded-contexts/shared/domain/event-bus'
 
 import { Reservation } from '../domain/reservation'
 import { ReservationRepository } from '../domain/reservation-repository'

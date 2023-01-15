@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe'
 
-import { UseCase } from '@src/bounded-contexts/shared/domain/use-case'
+import { UseCase } from '@shared/domain/use-case'
 
 import { Notification } from '../domain/notification'
 import { NotificationSenderSvc } from '../domain/notification-sender.service'

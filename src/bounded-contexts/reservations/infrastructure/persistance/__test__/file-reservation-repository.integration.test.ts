@@ -3,10 +3,10 @@ import { existsSync, promises } from 'fs'
 import { faker } from '@faker-js/faker'
 import { deserialize } from 'bson'
 
+import { ReservationMother } from '@reservations/domain/__test__/reservation-mother'
+import { ClientName } from '@reservations/domain/value-objects/client-name'
+import { ReservationDate } from '@reservations/domain/value-objects/reservation-date'
 import { Criteria, Filter } from '@shared/domain/criteria/'
-import { ReservationMother } from '@src/bounded-contexts/reservations/domain/__test__/reservation-mother'
-import { ClientName } from '@src/bounded-contexts/reservations/domain/value-objects/client-name'
-import { ReservationDate } from '@src/bounded-contexts/reservations/domain/value-objects/reservation-date'
 
 import { FileReservationRepository } from '../file-reservation-repository'
 

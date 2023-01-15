@@ -1,7 +1,7 @@
 import { ToPrimitives } from '@shared/custom-types'
 import { AggregateRoot } from '@shared/domain/aggregate-root'
+import { GenericId } from '@shared/domain/value-objects/id'
 import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
-import { GenericId } from '@src/bounded-contexts/shared/domain/value-objects/id'
 
 import { Email } from './value-objects/email'
 

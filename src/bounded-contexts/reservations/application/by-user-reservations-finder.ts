@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe'
 
-import { Criteria, Filter } from '@src/bounded-contexts/shared/domain/criteria'
-import { UseCase } from '@src/bounded-contexts/shared/domain/use-case'
+import { Criteria, Filter } from '@shared/domain/criteria'
+import { UseCase } from '@shared/domain/use-case'
 
 import { Reservation } from '../domain/reservation'
 import { ReservationRepository } from '../domain/reservation-repository'

@@ -2,7 +2,7 @@ import { container } from 'tsyringe'
 
 import { EventBus } from '@shared/domain/event-bus'
 import { Logger } from '@shared/domain/logger'
-import { CustomRouteBuilder, KoaServer } from '@src/bounded-contexts/shared/infrastructure/http-server'
+import { CustomRouteBuilder, KoaServer } from '@shared/infrastructure/http-server'
 
 import { NotificationsSubscriber } from './notifications-subscriber'
 import { env } from './settings'

@@ -1,5 +1,5 @@
+import { AggregateRoot } from '@shared/domain/aggregate-root'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
-import { AggregateRoot } from '@src/bounded-contexts/shared/domain/aggregate-root'
 
 import { NoCapacity } from './errors/no-capacity'
 import { ReservationCreated } from './reservation-created-event'
