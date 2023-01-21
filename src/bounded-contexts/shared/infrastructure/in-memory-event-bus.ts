@@ -26,19 +26,17 @@ export class InMemoryAsyncEventBus implements EventBus {
     this.subscribers = subscribers
 
     this.subscribers.forEach(subscriber => {
-      subscriber.subscribedTo().forEach(eventName => {
-        eventEmitter.on(eventName.value, subscriber.on.bind(subscriber))
-        this.logger.debug(`subscriber ready on event: ${eventName.value}`)
-      })
+      const eventName = subscriber.subscribedTo()
+      eventEmitter.on(eventName.value, subscriber.on.bind(subscriber))
+      this.logger.debug(`subscriber ready on event: ${eventName.value}`)
     })
   }
 
   async onClose(): Promise<void> {
-    this.subscribers.forEach(sub =>
-      sub.subscribedTo().forEach(event => {
-        eventEmitter.removeAllListeners(event.value)
-        this.logger.debug(`listener removed for: ${event.value}`)
-      }),
-    )
+    this.subscribers.forEach(sub => {
+      const event = sub.subscribedTo()
+      eventEmitter.removeAllListeners(event.value)
+      this.logger.debug(`listener removed for: ${event.value}`)
+    })
   }
 }

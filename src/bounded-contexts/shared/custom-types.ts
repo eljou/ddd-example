@@ -5,28 +5,42 @@ export type JSONType = Exclude<Primitive, 'Date'> | Array<JSONType> | { [key: st
 
 export type OrderType = 'ASC' | 'DEC'
 
+type Fn = (...args: any[]) => any
+
 type Methods<T> = {
-  [P in keyof T]: T[P] extends Function ? P : never
+  [P in keyof T]: T[P] extends Fn ? P : never
 }[keyof T]
 
 type MethodsAndProperties<T> = { [key in keyof T]: T[key] }
 
 type Properties<T> = Omit<MethodsAndProperties<T>, Methods<T>>
 
+type MapNullableValueObject<T extends { value: unknown } | undefined> = T extends { value: unknown }
+  ? T['value']
+  : undefined
+
+type MapNullableArrayOfValueObjects<T extends Array<{ value: unknown }> | undefined> = T extends Array<{
+  value: unknown
+}>
+  ? T[number]['value'][]
+  : undefined
+
 type Obj = { [key: string]: unknown } | object
-type ValueObjectValue<T> = {
+type MapType<T> = {
   [key in keyof T]: T[key] extends { value: unknown }
-    ? Pick<T[key], 'value'>['value']
-    : T[key] extends Array<{ value: unknown }>
-    ? Pick<T[key][number], 'value'>['value'][]
+    ? MapNullableValueObject<T[key]>
+    : T[key] extends Array<{ value: unknown }> | undefined
+    ? MapNullableArrayOfValueObjects<T[key]>
     : T[key] extends Array<Obj>
     ? ToPrimitives<T[key][number]>[]
+    : T[key] extends Date
+    ? Date
     : T[key] extends Obj
     ? ToPrimitives<T[key]>
     : T[key]
 }
 
-export type ToPrimitives<T> = ValueObjectValue<Properties<T>>
+export type ToPrimitives<T> = MapType<Properties<T>>
 
 /* declare const __type__: unique symbol
 declare const __brand__: unique symbol

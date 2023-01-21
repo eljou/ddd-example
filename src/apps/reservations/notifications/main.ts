@@ -1,25 +1,32 @@
 import { container } from 'tsyringe'
 
-import { EventBus } from '@shared/domain/event-bus'
+import { EventName } from '@shared/domain/domain-event'
 import { Logger } from '@shared/domain/logger'
 import { CustomRouteBuilder, KoaServer } from '@shared/infrastructure/http-server'
+import { RedisEventBus } from '@shared/infrastructure/redis-event-bus'
 
 import { NotificationsSubscriber } from './notifications-subscriber'
 import { env } from './settings'
 
-export function main(): void {
+export function main(): Promise<void> {
   const logger = container.resolve<Logger>('Logger')
 
-  const eventBus = container.resolve<EventBus>('EventBus')
-  eventBus.addSubscribers([container.resolve(NotificationsSubscriber)])
+  const eventBus = container.resolve<RedisEventBus>('EventBus')
 
-  KoaServer.create({ productName: 'notifictions', port: env.PORT, logger })
-    .registerRoute(
-      new CustomRouteBuilder({ isPrivate: false }).get('/ping', async ctx => {
-        ctx.response.body = 200
-      }),
-    )
-    .start()
+  return eventBus
+    .connect()
+    .then(() => {
+      const notificationSubs = container.resolve(NotificationsSubscriber)
+      eventBus.addSubscribers([notificationSubs as any])
+
+      return KoaServer.create({ productName: 'notifictions', port: env.PORT, logger })
+        .registerRoute(
+          new CustomRouteBuilder({ isPrivate: false }).get('/ping', async ctx => {
+            ctx.response.body = 200
+          }),
+        )
+        .start()
+    })
     .then(runningServer => {
       const closeSignals = ['SIGTERM', 'SIGINT', 'SIGUSR2', 'SIGQUIT']
       closeSignals.forEach(s =>
