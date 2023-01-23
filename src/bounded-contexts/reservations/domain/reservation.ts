@@ -24,7 +24,7 @@ export type ReservationProps = {
 export class Reservation extends AggregateRoot<ReservationProps> {
   private constructor(props: ReservationProps, id?: ReservationId) {
     super(props, id)
-    this.record(new ReservationCreated({ aggregateId: this._id, payload: props }))
+    this.record(ReservationCreated.create({ aggregateId: this._id, payload: this }))
   }
 
   static create(props: Omit<ReservationProps, 'accepted'> & { id?: ReservationId }): Reservation {

@@ -3,7 +3,7 @@ import { inject, singleton } from 'tsyringe'
 import { NotificationSender } from '@notifications/application/notification-sender'
 import { Email } from '@notifications/domain/value-objects/email'
 import { ReservationCreated } from '@reservations/domain/reservation-created-event'
-import { ToPrimitives } from '@shared/custom-types'
+import { DomainEvent } from '@shared/domain/domain-event'
 import { DomainEventSubscriber } from '@shared/domain/domain-event-subscriber'
 import { Logger } from '@shared/domain/logger'
 import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
@@ -12,11 +12,16 @@ import { NonEmptyString } from '@shared/domain/value-objects/non-empty-string'
 export class NotificationsSubscriber implements DomainEventSubscriber<ReservationCreated> {
   constructor(@inject('Logger') private readonly logger: Logger, private readonly useCase: NotificationSender) {}
 
-  subscribedTo(): [
-    typeof ReservationCreated.EVENT_NAME,
-    (prims: ToPrimitives<ReservationCreated>) => ReservationCreated,
-  ] {
-    return [ReservationCreated.EVENT_NAME, ReservationCreated.fromPrimitives]
+  subsribedTo(): Array<{
+    eventName: typeof DomainEvent.EVENT_NAME
+    fromPrimitives: typeof DomainEvent.fromPrimitives
+  }> {
+    return [
+      {
+        eventName: ReservationCreated.EVENT_NAME,
+        fromPrimitives: ReservationCreated.fromPrimitives,
+      },
+    ]
   }
 
   async on(domainEvent: ReservationCreated): Promise<void> {
@@ -25,9 +30,9 @@ export class NotificationsSubscriber implements DomainEventSubscriber<Reservatio
     this.useCase.run({
       title: new NonEmptyString('Reservation Created'),
       message: new NonEmptyString(
-        `Reservation of ${domainEvent.payload.seats.value} seats accepted for client: ${
-          domainEvent.payload.clientName.value
-        }, on: ${domainEvent.payload.date.value.toLocaleString()}`,
+        `Reservation of ${domainEvent.payload.props.seats.value} seats accepted for client: ${
+          domainEvent.payload.props.clientName.value
+        }, on: ${domainEvent.payload.props.date.value.toLocaleString()}`,
       ),
       email: new Email('jhon@mail.com'),
     })

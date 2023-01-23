@@ -1,46 +1,47 @@
 import { ToPrimitives } from '@shared/custom-types'
 import { DomainEvent, EventName } from '@shared/domain/domain-event'
 import { GenericId } from '@shared/domain/value-objects/id'
-import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
-import { ReservationProps } from './reservation'
-import { ClientName } from './value-objects/client-name'
-import { ReservationDate } from './value-objects/reservation-date'
+import { Reservation } from './reservation'
 
-export class ReservationCreated extends DomainEvent<EventName<'reservation.created'>, ReservationProps> {
+export class ReservationCreated extends DomainEvent {
   static EVENT_NAME = new EventName('reservation.created')
-  static fromPrimitives(prims: ToPrimitives<ReservationCreated>): ReservationCreated {
-    return new ReservationCreated({
-      aggregateId: new GenericId(prims.aggregateId),
-      eventId: new GenericId(prims.eventId),
-      occurredOn: prims.occurredOn,
-      payload: {
-        clientName: new ClientName(prims.payload.clientName),
-        seats: new PositiveNumber(prims.payload.seats),
-        accepted: prims.payload.accepted,
-        date: new ReservationDate(new Date(prims.payload.date)),
-      },
-    })
+
+  static fromPrimitives(primitives: ToPrimitives<ReservationCreated>): ReservationCreated {
+    const { aggregateId, eventId, ocurredOn, payload } = primitives
+    return new ReservationCreated(
+      new GenericId(aggregateId),
+      Reservation.fromPrimitives({
+        id: payload._id,
+        clientName: payload.props.clientName,
+        seats: payload.props.seats,
+        accepted: payload.props.accepted,
+        date: payload.props.date,
+      }),
+      new GenericId(eventId),
+      ocurredOn,
+    )
   }
 
-  constructor(props: { aggregateId: GenericId; payload: ReservationProps; eventId?: GenericId; occurredOn?: Date }) {
-    super({
-      eventName: ReservationCreated.EVENT_NAME,
-      aggregateId: props.aggregateId,
-      eventId: props.eventId,
-      occurredOn: props.occurredOn,
-      payload: props.payload,
-    })
+  static create(props: { aggregateId: GenericId; payload: Reservation }): ReservationCreated {
+    return new ReservationCreated(props.aggregateId, props.payload)
+  }
+
+  constructor(aggregateId: GenericId, public payload: Reservation, eventId?: GenericId, occurredOn?: Date) {
+    super(ReservationCreated.EVENT_NAME, aggregateId, eventId, occurredOn)
   }
 
   toPrimitives(): ToPrimitives<ReservationCreated> {
     return {
-      ...this.getBasePrimitives(),
+      ...super.basePrimitives(),
       payload: {
-        clientName: this.payload.clientName.value,
-        seats: this.payload.seats.value,
-        accepted: this.payload.accepted,
-        date: this.payload.date.value,
+        _id: this.payload._id.value,
+        props: {
+          clientName: this.payload.props.clientName.value,
+          seats: this.payload.props.seats.value,
+          accepted: this.payload.props.accepted,
+          date: this.payload.props.date.value,
+        },
       },
     }
   }

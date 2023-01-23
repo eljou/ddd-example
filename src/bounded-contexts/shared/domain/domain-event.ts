@@ -1,40 +1,30 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GenericId } from './value-objects/id'
-import { NonEmptyString } from './value-objects/non-empty-string'
+import { ValueObject } from './value-objects/value-object'
 import { ToPrimitives } from '../custom-types'
 
-export class EventName<V extends string = string> extends NonEmptyString {
-  constructor(value: V) {
-    super(value)
-  }
-}
+export class EventName extends ValueObject<string> {}
 
-export abstract class DomainEvent<E extends EventName, P = unknown> {
+export abstract class DomainEvent {
+  static fromPrimitives: (props: ToPrimitives<DomainEvent> & { payload: any }) => DomainEvent
+  static create: (props: { aggregateId: GenericId; eventName: string } & { payload: any }) => DomainEvent
   static EVENT_NAME: EventName
 
-  readonly aggregateId: GenericId
-  readonly eventId: GenericId
-  readonly occurredOn: Date
-  readonly eventName: E
-  readonly payload: P
+  constructor(
+    public eventName: typeof DomainEvent.EVENT_NAME,
+    public aggregateId: GenericId,
+    public eventId: GenericId = GenericId.generateUnique(),
+    public ocurredOn: Date = new Date(),
+  ) {}
 
-  constructor(params: { eventName: E; aggregateId: GenericId; eventId?: GenericId; occurredOn?: Date; payload: P }) {
-    const { aggregateId, eventName, eventId, occurredOn, payload } = params
-    this.aggregateId = aggregateId
-    this.eventName = eventName
-    this.eventId = eventId ?? GenericId.generateUnique()
-    this.occurredOn = occurredOn ?? new Date()
-    this.payload = payload
-  }
+  abstract toPrimitives(): unknown
 
-  protected getBasePrimitives(): ToPrimitives<DomainEvent<EventName>> {
+  basePrimitives(): ToPrimitives<DomainEvent> {
     return {
       aggregateId: this.aggregateId.value,
       eventId: this.eventId.value,
       eventName: this.eventName.value,
-      occurredOn: this.occurredOn,
-      payload: this.payload,
+      ocurredOn: this.ocurredOn,
     }
   }
-
-  abstract toPrimitives(): unknown
 }

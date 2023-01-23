@@ -1,5 +1,11 @@
-import { randomBytes } from 'crypto'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import EventEmitter from 'events'
+
+import { ToPrimitives } from '@shared/custom-types'
+
+import { GenericId } from '../value-objects/id'
+import { NonEmptyString } from '../value-objects/non-empty-string'
+import { ValueObject } from '../value-objects/value-object'
 
 /* 
 type Remap<F extends ((...args: any) => any)[]> = {
@@ -10,48 +16,111 @@ declare const a: [(a: string) => void, (b: number) => void]
 type T = Remap<typeof a>
 */
 
+class EventName extends ValueObject<string> {}
+
 export abstract class DomainEvent {
-  static create: (props: { aggregateId: string; eventName: string } & any) => DomainEvent
-  static EVENT_NAME: string
+  static fromPrimitives: (props: ToPrimitives<DomainEvent> & { payload: any }) => DomainEvent
+  static create: (props: { aggregateId: GenericId; eventName: string } & { payload: any }) => DomainEvent
+  static EVENT_NAME: EventName
 
   constructor(
     public eventName: typeof DomainEvent.EVENT_NAME,
-    public aggregateId: string,
-    public eventId: string = randomBytes(16).toString('hex'),
+    public aggregateId: GenericId,
+    public eventId: GenericId = GenericId.generateUnique(),
     public ocurredOn: Date = new Date(),
   ) {}
+
+  basePrimitives(): ToPrimitives<DomainEvent> {
+    return {
+      aggregateId: this.aggregateId.value,
+      eventId: this.eventId.value,
+      eventName: this.eventName.value,
+      ocurredOn: this.ocurredOn,
+    }
+  }
+
+  abstract toPrimitives(): unknown
 }
 
-type NameRegisteredPayload = { name: string }
+type NameRegisteredPayload = { name: NonEmptyString }
 class NameRegistered extends DomainEvent {
-  static EVENT_NAME = 'name.registered'
+  static EVENT_NAME = new EventName('name.registered')
 
-  static create(props: { aggregateId: string; payload: NameRegisteredPayload }): NameRegistered {
+  static fromPrimitives(props: ToPrimitives<NameRegistered>): NameRegistered {
+    return new NameRegistered(
+      new GenericId(props.aggregateId),
+      { name: new NonEmptyString(props.payload.name) },
+      new GenericId(props.eventId),
+      props.ocurredOn,
+    )
+  }
+
+  static create(props: { aggregateId: GenericId; payload: NameRegisteredPayload }): NameRegistered {
     return new NameRegistered(props.aggregateId, props.payload)
   }
 
-  private constructor(aggregateId: string, public payload: NameRegisteredPayload) {
-    super(NameRegistered.EVENT_NAME, aggregateId)
+  private constructor(
+    aggregateId: GenericId,
+    public payload: NameRegisteredPayload,
+    eventId?: GenericId,
+    ocurredOn?: Date,
+  ) {
+    super(NameRegistered.EVENT_NAME, aggregateId, eventId, ocurredOn)
+  }
+
+  toPrimitives(): ToPrimitives<NameRegistered> {
+    return {
+      ...super.basePrimitives(),
+      payload: {
+        name: this.payload.name.value,
+      },
+    }
   }
 }
 
 type AgeRegisteredPayload = { age: number }
 class AgeRegistered extends DomainEvent {
-  static EVENT_NAME = 'age.registered'
+  static EVENT_NAME = new EventName('age.registered')
 
-  static create(props: { aggregateId: string; payload: AgeRegisteredPayload }): AgeRegistered {
+  static fromPrimitives(props: ToPrimitives<AgeRegistered>): AgeRegistered {
+    return new AgeRegistered(
+      new GenericId(props.aggregateId),
+      { age: props.payload.age },
+      new GenericId(props.eventId),
+      props.ocurredOn,
+    )
+  }
+
+  static create(props: { aggregateId: GenericId; payload: AgeRegisteredPayload }): AgeRegistered {
     return new AgeRegistered(props.aggregateId, props.payload)
   }
 
-  private constructor(aggregateId: string, public payload: AgeRegisteredPayload) {
-    super(NameRegistered.EVENT_NAME, aggregateId)
+  private constructor(
+    aggregateId: GenericId,
+    public payload: AgeRegisteredPayload,
+    eventId?: GenericId,
+    ocurredOn?: Date,
+  ) {
+    super(AgeRegistered.EVENT_NAME, aggregateId, eventId, ocurredOn)
+  }
+
+  toPrimitives(): ToPrimitives<AgeRegistered> {
+    return {
+      ...super.basePrimitives(),
+      payload: {
+        age: this.payload.age,
+      },
+    }
   }
 }
 
 // ===
 
 interface Subscriber<E extends DomainEvent = DomainEvent> {
-  eventMappings(): Array<{ eventName: typeof DomainEvent.EVENT_NAME; eventBuilder: typeof DomainEvent.create }>
+  eventMappings(): Array<{
+    eventName: typeof DomainEvent.EVENT_NAME
+    fromPrimitives: typeof DomainEvent.fromPrimitives
+  }>
   on(event: E): Promise<void>
 }
 
@@ -59,20 +128,16 @@ const loggerSubscriber: Subscriber<NameRegistered | AgeRegistered> = {
   eventMappings: () => [
     {
       eventName: NameRegistered.EVENT_NAME,
-      eventBuilder: NameRegistered.create,
+      fromPrimitives: NameRegistered.fromPrimitives,
     },
     {
       eventName: AgeRegistered.EVENT_NAME,
-      eventBuilder: AgeRegistered.create,
+      fromPrimitives: AgeRegistered.fromPrimitives,
     },
   ],
 
   on: async event => {
-    console.log(
-      `EV >> ${event.eventId}:${event.eventName} = { aggId: ${event.aggregateId}, payload: ${JSON.stringify(
-        event.payload,
-      )} }`,
-    )
+    console.log(`EV >>`, event.toPrimitives())
   },
 }
 
@@ -86,8 +151,8 @@ class MemoryEvBus implements EventBus {
 
   async publish(events: Array<DomainEvent>): Promise<void> {
     events.forEach(e => {
-      console.log('publishing:', e.eventName, JSON.stringify(e))
-      this.em.emit(e.eventName, JSON.stringify(e))
+      console.log('publishing:', e.eventName.value, JSON.stringify(e.toPrimitives()))
+      this.em.emit(e.eventName.value, JSON.stringify(e.toPrimitives()))
     })
   }
 
@@ -95,9 +160,9 @@ class MemoryEvBus implements EventBus {
     subscribers.forEach(sub => {
       sub.eventMappings().forEach(mapping => {
         console.log('setup on handler for:', mapping.eventName)
-        this.em.on(mapping.eventName, str => {
+        this.em.on(mapping.eventName.value, str => {
           const envObj = JSON.parse(str)
-          sub.on(mapping.eventBuilder(envObj))
+          sub.on(mapping.fromPrimitives(envObj))
         })
       })
     })
@@ -108,8 +173,13 @@ async function main() {
   const bus = new MemoryEvBus()
   bus.addSubsribers([loggerSubscriber])
 
-  await bus.publish([NameRegistered.create({ aggregateId: randomBytes(8).toString('hex'), payload: { name: 'Jhon' } })])
-  await bus.publish([AgeRegistered.create({ aggregateId: randomBytes(8).toString('hex'), payload: { age: 23 } })])
+  const ev1 = NameRegistered.create({
+    aggregateId: GenericId.generateUnique(),
+    payload: { name: new NonEmptyString('Jhon') },
+  })
+  const ev2 = AgeRegistered.create({ aggregateId: GenericId.generateUnique(), payload: { age: 23 } })
+  console.log(ev1, ev2)
+  await bus.publish([ev1, ev2])
 }
 
 main()

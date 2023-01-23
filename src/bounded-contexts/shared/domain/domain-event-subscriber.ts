@@ -1,8 +1,10 @@
-import { ToPrimitives } from '@shared/custom-types'
+import { DomainEvent } from './domain-event'
 
-import { DomainEvent, EventName } from './domain-event'
+export interface DomainEventSubscriber<E extends DomainEvent = DomainEvent> {
+  subsribedTo(): Array<{
+    eventName: typeof DomainEvent.EVENT_NAME
+    fromPrimitives: typeof DomainEvent.fromPrimitives
+  }>
 
-export interface DomainEventSubscriber<D extends DomainEvent<E, P>, E extends EventName = EventName, P = unknown> {
-  subscribedTo(): [E, (prims: ToPrimitives<D>) => D]
-  on(domainEvent: D): Promise<void>
+  on(event: E): Promise<void>
 }

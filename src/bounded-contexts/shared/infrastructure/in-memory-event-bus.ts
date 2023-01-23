@@ -11,32 +11,38 @@ const eventEmitter = new EventEmitter()
 
 @singleton()
 export class InMemoryAsyncEventBus implements EventBus {
-  constructor(@inject('Logger') private readonly logger: Logger) {}
-
   private subscribers: Array<DomainEventSubscriber<DomainEvent>> = []
 
-  async publish(events: DomainEvent[]): Promise<void> {
-    events.forEach(event => {
-      eventEmitter.emit(event.eventName.value, event)
-      this.logger.debug(`published event: ${event.eventName.value}`)
+  constructor(@inject('Logger') private readonly logger: Logger) {}
+
+  async publish(events: Array<DomainEvent>): Promise<void> {
+    events.forEach(e => {
+      this.logger.debug(`publishing: ${e.eventName.value}`)
+      eventEmitter.emit(e.eventName.value, JSON.stringify(e.toPrimitives()))
     })
   }
 
   addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
-    this.subscribers = subscribers
+    this.subscribers = [...subscribers]
 
-    this.subscribers.forEach(subscriber => {
-      const eventName = subscriber.subscribedTo()
-      eventEmitter.on(eventName.value, subscriber.on.bind(subscriber))
-      this.logger.debug(`subscriber ready on event: ${eventName.value}`)
+    subscribers.forEach(sub => {
+      sub.subsribedTo().forEach(({ eventName, fromPrimitives }) => {
+        this.logger.info(`setup on handler for: ${eventName.value}`)
+
+        eventEmitter.on(eventName.value, str => {
+          const envObj = JSON.parse(str)
+          sub.on(fromPrimitives(envObj))
+        })
+      })
     })
   }
 
   async onClose(): Promise<void> {
     this.subscribers.forEach(sub => {
-      const event = sub.subscribedTo()
-      eventEmitter.removeAllListeners(event.value)
-      this.logger.debug(`listener removed for: ${event.value}`)
+      sub.subsribedTo().forEach(({ eventName }) => {
+        eventEmitter.removeAllListeners(eventName.value)
+        this.logger.debug(`listener removed for: ${eventName.value}`)
+      })
     })
   }
 }

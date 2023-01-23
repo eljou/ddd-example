@@ -1,6 +1,5 @@
 import { container } from 'tsyringe'
 
-import { EventName } from '@shared/domain/domain-event'
 import { Logger } from '@shared/domain/logger'
 import { CustomRouteBuilder, KoaServer } from '@shared/infrastructure/http-server'
 import { RedisEventBus } from '@shared/infrastructure/redis-event-bus'
@@ -17,7 +16,7 @@ export function main(): Promise<void> {
     .connect()
     .then(() => {
       const notificationSubs = container.resolve(NotificationsSubscriber)
-      eventBus.addSubscribers([notificationSubs as any])
+      eventBus.addSubscribers([notificationSubs])
 
       return KoaServer.create({ productName: 'notifictions', port: env.PORT, logger })
         .registerRoute(
