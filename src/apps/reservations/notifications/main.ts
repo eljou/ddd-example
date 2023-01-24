@@ -11,13 +11,12 @@ export function main(): Promise<void> {
   const logger = container.resolve<Logger>('Logger')
 
   const eventBus = container.resolve<RedisEventBus>('EventBus')
+  const notificationSubs = container.resolve(NotificationsSubscriber)
+  eventBus.addSubscribers([notificationSubs])
 
   return eventBus
     .connect()
     .then(() => {
-      const notificationSubs = container.resolve(NotificationsSubscriber)
-      eventBus.addSubscribers([notificationSubs])
-
       return KoaServer.create({ productName: 'notifictions', port: env.PORT, logger })
         .registerRoute(
           new CustomRouteBuilder({ isPrivate: false }).get('/ping', async ctx => {

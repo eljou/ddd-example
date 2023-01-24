@@ -1,3 +1,4 @@
+import { deserialize, serialize } from 'bson'
 import { Redis, RedisOptions } from 'ioredis'
 import { inject, singleton } from 'tsyringe'
 
@@ -43,7 +44,7 @@ export class RedisEventBus implements EventBus {
       const subscribers = this.subscribersMap.get(channel)
       if (subscribers) {
         for (const sub of subscribers) {
-          await sub.handler(sub.eventBuilder(JSON.parse(msg)))
+          await sub.handler(sub.eventBuilder(deserialize(Buffer.from(msg, 'base64')) as any))
         }
       }
     })
@@ -54,10 +55,12 @@ export class RedisEventBus implements EventBus {
       .reduce(
         (prev, ev) =>
           prev.then(results =>
-            this.emitter.publish(ev.eventName.value, JSON.stringify(ev.toPrimitives())).then(res => {
-              this.logger.debug(`published event: ${ev.eventName.value}`)
-              return [...results, res]
-            }),
+            this.emitter
+              .publish(ev.eventName.value, serialize(ev.toPrimitives() as object).toString('base64'))
+              .then(res => {
+                this.logger.debug(`published event: ${ev.eventName.value}`)
+                return [...results, res]
+              }),
           ),
         Promise.resolve<number[]>([]),
       )
@@ -82,6 +85,7 @@ export class RedisEventBus implements EventBus {
 
       return eventSubscribersMap
     }, new Map())
+    console.log(this.subscribersMap)
   }
 
   async onClose(): Promise<void> {
