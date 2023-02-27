@@ -1,6 +1,6 @@
+import { Filter } from './filter'
 import { OrderType } from '../../custom-types'
 import { Entity } from '../entity'
-import { Filter } from './filter'
 
 export type Order<E extends Entity<unknown>> = { by: keyof E['props']; type: OrderType }
 

@@ -1,3 +1,4 @@
+import typedMongo from 'ts-valid-mongodb'
 import { container } from 'tsyringe'
 
 import { Logger } from '@shared/domain/logger'
@@ -13,8 +14,9 @@ export function main(): Promise<void> {
   const logger = container.resolve<Logger>('Logger')
   const eventBus = container.resolve<RedisEventBus>('EventBus')
 
-  return eventBus
-    .connect()
+  return typedMongo
+    .connect('mongodb://localhost:27017', 'reservations')
+    .then(() => eventBus.connect())
     .then(() =>
       KoaServer.create({ productName: 'reservations-backend', port: env.PORT, logger })
         .setGlobalMiddlewares([
@@ -54,6 +56,7 @@ export function main(): Promise<void> {
         process.on(s, async () => {
           await eventBus.onClose()
           await server.stop()
+          await typedMongo.disconnect()
           logger.info('App closed')
           process.exit(0)
         }),

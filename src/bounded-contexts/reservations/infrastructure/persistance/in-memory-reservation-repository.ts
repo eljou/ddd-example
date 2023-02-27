@@ -51,10 +51,18 @@ export class InMemoryReservationRepository implements ReservationRepository {
         return comparePrimitives(a, b) == -1
       case '>':
         return comparePrimitives(a, b) == 1
+      case '<=':
+        return comparePrimitives(a, b) == 0 || comparePrimitives(a, b) == -1
+      case '>=':
+        return comparePrimitives(a, b) == 0 || comparePrimitives(a, b) == 1
       case 'CONTAINS':
         return typeof a == 'string' && typeof b == 'string' && a.includes(b)
       case 'NOT_CONTAINS':
         return typeof a == 'string' && typeof b == 'string' && !a.includes(b)
+      case 'STARTS_WITH':
+        return typeof a == 'string' && typeof b == 'string' && a.startsWith(b)
+      case 'ENDS_WITH':
+        return typeof a == 'string' && typeof b == 'string' && a.endsWith(b)
       default:
         assertNever(operator)
     }

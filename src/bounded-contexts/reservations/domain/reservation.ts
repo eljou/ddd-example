@@ -1,3 +1,4 @@
+import { ToPrimitives } from '@shared/custom-types'
 import { AggregateRoot } from '@shared/domain/aggregate-root'
 import { PositiveNumber } from '@shared/domain/value-objects/positive-number'
 
@@ -7,28 +8,24 @@ import { ClientName } from './value-objects/client-name'
 import { ReservationDate } from './value-objects/reservation-date'
 import { ReservationId } from './value-objects/reservation-id'
 
-type ReservationPrimitives = {
-  id: string
-  clientName: string
-  seats: number
-  date: Date
-  accepted: boolean
-}
-
 export type ReservationProps = {
   clientName: ClientName
   seats: PositiveNumber
   date: ReservationDate
   accepted: boolean
 }
+
+export type ReservationPrimitives = ToPrimitives<ReservationProps> & { id: string }
+
 export class Reservation extends AggregateRoot<ReservationProps> {
   private constructor(props: ReservationProps, id?: ReservationId) {
     super(props, id)
-    this.record(ReservationCreated.create({ aggregateId: this._id, payload: this }))
   }
 
   static create(props: Omit<ReservationProps, 'accepted'> & { id?: ReservationId }): Reservation {
-    return new Reservation({ ...props, accepted: true }, props.id)
+    const res = new Reservation({ ...props, accepted: true }, props.id)
+    res.record(ReservationCreated.create({ aggregateId: res._id, payload: res }))
+    return res
   }
 
   static fromPrimitives(plainData: {

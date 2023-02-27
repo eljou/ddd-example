@@ -9,10 +9,6 @@
     "dev": "npx ts-node -r tsconfig-paths/register -r dotenv/config src/index.ts",
     "start:reservations:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/apps/reservations/back/index.ts",
     "start:notifications:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/apps/reservations/notifications/index.ts",
-    "start:reservations": "node build/src/apps/reservations/back/index.js",
-    "start:notifications": "node build/src/apps/reservations/notifications/index.js",
-    "build:reservations": "npx tsc -p src/apps/reservations/back/index.ts",
-    "build:notifications": "npx tsc -p src/apps/reservations/notifications/index.ts",
     "build": "npx tsc -p .",
     "lint": "eslint --ext .ts ./src",
     "lint:fix": "npm run lint -- --fix",
@@ -36,6 +32,7 @@
     "koa-bodyparser": "^4.3.0",
     "koa-router": "^12.0.0",
     "reflect-metadata": "^0.1.13",
+    "ts-valid-mongodb": "^0.0.4",
     "tsyringe": "^4.7.0",
     "winston": "^3.8.2",
     "zod": "^3.20.2"
@@ -63,6 +60,7 @@
     "ts-jest": "^29.0.5",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
+    "tscpaths": "^0.0.9",
     "typescript": "^4.9.4"
   },
   "_moduleAliases": {

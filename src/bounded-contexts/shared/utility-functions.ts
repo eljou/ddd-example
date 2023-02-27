@@ -23,3 +23,13 @@ export function formatBytes(n: number): string {
   const rank = (k > 0 ? 'KMGT'[k - 1] : '') + 'b'
   return `${(n / Math.pow(1024, k)).toFixed(2)} ${rank}`
 }
+
+type Obj = { [k: string]: unknown }
+export const groupBy =
+  <T extends Obj, K extends string | number | symbol = string>(selector: (el: T) => K) =>
+  (list: T[]): Record<K, T[]> =>
+    list.reduce((gs: Record<string | number | symbol, T[]>, d: T) => {
+      const value = selector(d)
+      gs[value] = [...(gs[value] ?? []), d]
+      return gs
+    }, {})
